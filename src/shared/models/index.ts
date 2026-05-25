@@ -12,8 +12,6 @@ export const aiProviderNameHash: Record<ModelProviderEnum, string> = {
   [ModelProviderEnum.ChatboxAI]: 'Unavailable Provider',
   [ModelProviderEnum.Claude]: 'Claude API',
   [ModelProviderEnum.Gemini]: 'Google Gemini API',
-  [ModelProviderEnum.Moonshot]: 'Moonshot API',
-  [ModelProviderEnum.MoonshotCN]: 'Moonshot CN API',
   [ModelProviderEnum.Ollama]: 'Ollama API',
   [ModelProviderEnum.Groq]: 'Groq API',
   [ModelProviderEnum.DeepSeek]: 'DeepSeek API',

@@ -76,8 +76,6 @@ const BUILTIN_API_HOST_PROVIDERS = new Set<string>([
   ModelProviderEnum.OpenAIResponses,
   ModelProviderEnum.Claude,
   ModelProviderEnum.Gemini,
-  ModelProviderEnum.Moonshot,
-  ModelProviderEnum.MoonshotCN,
   ModelProviderEnum.Ollama,
   ModelProviderEnum.LMStudio,
 ])

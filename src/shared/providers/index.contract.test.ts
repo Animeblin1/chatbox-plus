@@ -20,6 +20,8 @@ describe('provider control-plane contracts', () => {
     expect(ids).not.toContain('minimax')
     expect(ids).not.toContain('minimax-cn')
     expect(ids).not.toContain('bedrock')
+    expect(ids).not.toContain('moonshot')
+    expect(ids).not.toContain('moonshot-cn')
   })
 
   it('passes network compatibility proxy setting to remaining provider models', () => {

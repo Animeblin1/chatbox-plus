@@ -17,8 +17,6 @@ export const PROVIDER_ID_MAP: Record<string, string> = {
   'mistral-ai': 'mistral',
   perplexity: 'perplexity',
   openrouter: 'openrouter',
-  moonshot: 'moonshotai',
-  'moonshot-cn': 'moonshotai',
   siliconflow: 'siliconflow',
   'chatglm-6b': 'zhipuai',
 }

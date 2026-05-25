@@ -9,8 +9,6 @@ export enum ModelProviderEnum {
   ChatGLM6B = 'chatglm-6b',
   Claude = 'claude',
   Gemini = 'gemini',
-  Moonshot = 'moonshot',
-  MoonshotCN = 'moonshot-cn',
   Ollama = 'ollama',
   Groq = 'groq',
   DeepSeek = 'deepseek',
