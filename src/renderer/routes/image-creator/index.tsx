@@ -433,6 +433,26 @@ function ImageCreatorPage() {
     []
   )
 
+  const getCustomImageModels = useCallback(
+    (
+      providerModels: { modelId: string; nickname?: string; type?: string }[],
+      fallbackImageModelIds: string[],
+      includeFallback = false
+    ) => {
+      const imageModels = providerModels
+        .filter((model) => model.type === 'image')
+        .map((model) => ({
+          modelId: model.modelId,
+          displayName: model.nickname || IMAGE_MODEL_FALLBACK_NAMES[model.modelId] || model.modelId,
+        }))
+
+      return imageModels.length > 0
+        ? imageModels
+        : getAvailableImageModels(providerModels, fallbackImageModelIds, includeFallback)
+    },
+    [getAvailableImageModels]
+  )
+
   const imageModelGroups = useMemo(() => {
     const groups: { label: string; providerId: string; models: { modelId: string; displayName: string }[] }[] = []
 
@@ -454,7 +474,7 @@ function ImageCreatorPage() {
       .filter((p) => p.isCustom && p.type === ModelProviderType.OpenAI)
       .forEach((provider) => {
         const providerModels = provider.models || provider.defaultSettings?.models || []
-        const models = getAvailableImageModels(providerModels, OPENAI_IMAGE_MODEL_IDS, true)
+        const models = getCustomImageModels(providerModels, OPENAI_IMAGE_MODEL_IDS, true)
         if (models.length > 0) {
           groups.push({ label: provider.name, providerId: provider.id, models })
         }
@@ -473,14 +493,14 @@ function ImageCreatorPage() {
       .filter((p) => p.isCustom && p.type === ModelProviderType.Gemini)
       .forEach((provider) => {
         const providerModels = provider.models || provider.defaultSettings?.models || []
-        const models = getAvailableImageModels(providerModels, GEMINI_IMAGE_MODEL_IDS)
+        const models = getCustomImageModels(providerModels, GEMINI_IMAGE_MODEL_IDS)
         if (models.length > 0) {
           groups.push({ label: provider.name, providerId: provider.id, models })
         }
       })
 
     return groups
-  }, [providers, getAvailableImageModels])
+  }, [providers, getAvailableImageModels, getCustomImageModels])
 
   useEffect(() => {
     const selectedGroup = imageModelGroups.find((group) => group.providerId === selectedProvider)

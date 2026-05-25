@@ -30,6 +30,7 @@ const ModelEdit = NiceModal.create((props: { model?: ProviderModelInfo; provider
     { value: 'chat', label: t('Chat')?.toString() ?? 'Chat' },
     { value: 'embedding', label: t('Embedding')?.toString() ?? 'Embedding' },
     { value: 'rerank', label: t('Rerank')?.toString() ?? 'Rerank' },
+    { value: 'image', label: t('Image')?.toString() ?? 'Image' },
   ]
 
   useEffect(() => {

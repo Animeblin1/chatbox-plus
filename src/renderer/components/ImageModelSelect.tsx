@@ -50,6 +50,18 @@ function getAvailableImageModels(
     .filter((m): m is ImageModel => m !== null)
 }
 
+function getCustomProviderImageModels(provider: ProviderInfo, fallbackImageModelIds: string[], includeFallback = false) {
+  const providerModels = provider.models || provider.defaultSettings?.models || []
+  const imageModels = providerModels
+    .filter((model) => model.type === 'image')
+    .map((model) => ({
+      modelId: model.modelId,
+      displayName: model.nickname || IMAGE_MODEL_FALLBACK_NAMES[model.modelId] || model.modelId,
+    }))
+
+  return imageModels.length > 0 ? imageModels : getAvailableImageModels(provider, fallbackImageModelIds, includeFallback)
+}
+
 export type ImageModelSelectProps = PropsWithChildren<
   {
     onSelect?: (provider: ModelProvider, model: string) => void
@@ -86,7 +98,7 @@ export const ImageModelSelect = forwardRef<HTMLButtonElement, ImageModelSelectPr
         .filter((p) => p.isCustom && p.type === ModelProviderType.OpenAI)
         .map((provider) => ({
           provider,
-          imageModels: getAvailableImageModels(provider, OPENAI_IMAGE_MODEL_IDS, true),
+          imageModels: getCustomProviderImageModels(provider, OPENAI_IMAGE_MODEL_IDS, true),
         }))
         .filter((item) => item.imageModels.length > 0)
     }, [providers])
@@ -96,7 +108,7 @@ export const ImageModelSelect = forwardRef<HTMLButtonElement, ImageModelSelectPr
         .filter((p) => p.isCustom && p.type === ModelProviderType.Gemini)
         .map((provider) => ({
           provider,
-          imageModels: getAvailableImageModels(provider, GEMINI_IMAGE_MODEL_IDS),
+          imageModels: getCustomProviderImageModels(provider, GEMINI_IMAGE_MODEL_IDS),
         }))
         .filter((item) => item.imageModels.length > 0)
     }, [providers])
