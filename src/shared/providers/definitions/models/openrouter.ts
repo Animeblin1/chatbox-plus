@@ -2,6 +2,7 @@ import { createOpenRouter } from '@openrouter/ai-sdk-provider'
 import { extractReasoningMiddleware, wrapLanguageModel } from 'ai'
 import AbstractAISDKModel from '../../../models/abstract-ai-sdk'
 import { fetchRemoteModels } from '../../../models/openai-compatible'
+import { createFetchWithProxy } from '../../../models/utils/fetch-proxy'
 import type { ProviderModelInfo } from '../../../types'
 import type { ModelDependencies } from '../../../types/adapters'
 
@@ -12,6 +13,7 @@ interface Options {
   topP?: number
   maxOutputTokens?: number
   stream?: boolean
+  useProxy?: boolean
 }
 
 export default class OpenRouter extends AbstractAISDKModel {
@@ -35,6 +37,7 @@ export default class OpenRouter extends AbstractAISDKModel {
   protected getProvider() {
     return createOpenRouter({
       apiKey: this.options.apiKey,
+      fetch: createFetchWithProxy(this.options.useProxy, this.dependencies),
     })
   }
 
@@ -51,7 +54,7 @@ export default class OpenRouter extends AbstractAISDKModel {
       {
         apiHost: 'https://openrouter.ai/api/v1',
         apiKey: this.options.apiKey,
-        useProxy: false,
+        useProxy: this.options.useProxy,
       },
       this.dependencies
     ).catch((err) => {

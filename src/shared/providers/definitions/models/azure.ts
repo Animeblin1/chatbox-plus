@@ -1,6 +1,7 @@
 import { createAzure } from '@ai-sdk/azure'
 import { extractReasoningMiddleware, wrapLanguageModel } from 'ai'
 import AbstractAISDKModel from '../../../models/abstract-ai-sdk'
+import { createFetchWithProxy } from '../../../models/utils/fetch-proxy'
 import type { ProviderModelInfo } from '../../../types'
 import type { ModelDependencies } from '../../../types/adapters'
 import { normalizeAzureEndpoint } from '../../../utils/llm_utils'
@@ -22,6 +23,7 @@ interface Options {
 
   injectDefaultMetadata: boolean
   stream?: boolean
+  useProxy?: boolean
 }
 
 export default class AzureOpenAI extends AbstractAISDKModel {
@@ -40,6 +42,7 @@ export default class AzureOpenAI extends AbstractAISDKModel {
       apiKey: this.options.azureApikey,
       baseURL: normalizeAzureEndpoint(this.options.azureEndpoint).endpoint,
       useDeploymentBasedUrls: false,
+      fetch: createFetchWithProxy(this.options.useProxy, this.dependencies),
     })
   }
 

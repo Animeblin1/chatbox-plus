@@ -1,6 +1,7 @@
 import { createPerplexity } from '@ai-sdk/perplexity'
 import { extractReasoningMiddleware, wrapLanguageModel } from 'ai'
 import AbstractAISDKModel from '../../../models/abstract-ai-sdk'
+import { createFetchWithProxy } from '../../../models/utils/fetch-proxy'
 import type { ProviderModelInfo } from '../../../types'
 import type { ModelDependencies } from '../../../types/adapters'
 
@@ -11,6 +12,7 @@ interface Options {
   topP?: number
   maxOutputTokens?: number
   stream?: boolean
+  useProxy?: boolean
 }
 
 export default class Perplexity extends AbstractAISDKModel {
@@ -23,6 +25,7 @@ export default class Perplexity extends AbstractAISDKModel {
   protected getProvider() {
     return createPerplexity({
       apiKey: this.options.perplexityApiKey,
+      fetch: createFetchWithProxy(this.options.useProxy, this.dependencies),
     })
   }
 

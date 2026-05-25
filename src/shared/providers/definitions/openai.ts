@@ -102,7 +102,7 @@ export const openaiProvider = defineProvider({
           topP: config.settings.topP,
           maxOutputTokens: config.settings.maxTokens,
           stream: config.settings.stream,
-          useProxy: false,
+          useProxy: config.providerSetting.useProxy || false,
           customFetch: oauthFetch,
           listModelsFallback: config.providerSetting.models || openaiProvider.defaultSettings?.models,
           skipRemoteModelList: true,
@@ -122,7 +122,7 @@ export const openaiProvider = defineProvider({
         topP: config.settings.topP,
         maxOutputTokens: config.settings.maxTokens,
         injectDefaultMetadata: config.globalSettings.injectDefaultMetadata,
-        useProxy: false,
+        useProxy: config.providerSetting.useProxy || false,
         stream: config.settings.stream,
       },
       config.dependencies

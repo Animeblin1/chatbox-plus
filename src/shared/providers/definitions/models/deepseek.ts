@@ -3,6 +3,7 @@ import type { LanguageModelV3 } from '@ai-sdk/provider'
 import AbstractAISDKModel, { type CallSettings } from '../../../models/abstract-ai-sdk'
 import { ApiError } from '../../../models/errors'
 import type { CallChatCompletionOptions } from '../../../models/types'
+import { createFetchWithProxy } from '../../../models/utils/fetch-proxy'
 import type { ProviderModelInfo, ToolUseScope } from '../../../types'
 import type { ModelDependencies } from '../../../types/adapters'
 
@@ -13,6 +14,7 @@ interface Options {
   topP?: number
   maxOutputTokens?: number
   stream?: boolean
+  useProxy?: boolean
 }
 
 export default class DeepSeek extends AbstractAISDKModel {
@@ -28,6 +30,7 @@ export default class DeepSeek extends AbstractAISDKModel {
   protected getProvider() {
     return createDeepSeek({
       apiKey: this.options.apiKey,
+      fetch: createFetchWithProxy(this.options.useProxy, this.dependencies),
     })
   }
 
@@ -80,6 +83,7 @@ export default class DeepSeek extends AbstractAISDKModel {
       headers: {
         Authorization: `Bearer ${this.options.apiKey}`,
       },
+      useProxy: this.options.useProxy,
     })
     const json = await res.json()
     if (!json.data) {

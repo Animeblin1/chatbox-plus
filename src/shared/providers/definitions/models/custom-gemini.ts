@@ -4,6 +4,7 @@ import { generateText } from 'ai'
 import AbstractAISDKModel, { type CallSettings } from '../../../models/abstract-ai-sdk'
 import { ApiError } from '../../../models/errors'
 import type { CallChatCompletionOptions } from '../../../models/types'
+import { createFetchWithProxy } from '../../../models/utils/fetch-proxy'
 import type { ProviderModelInfo } from '../../../types'
 import type { ModelDependencies } from '../../../types/adapters'
 import { normalizeGoogleThinkingConfig } from '../../../utils/google-thinking'
@@ -24,6 +25,7 @@ interface Options {
   topP?: number
   maxOutputTokens?: number
   stream?: boolean
+  useProxy?: boolean
 }
 
 export default class CustomGemini extends AbstractAISDKModel {
@@ -46,10 +48,15 @@ export default class CustomGemini extends AbstractAISDKModel {
     ].includes(this.options.model.modelId)
   }
 
+  private isImageGenerationModel() {
+    return this.options.model.type === 'image' || GEMINI_IMAGE_MODELS.includes(this.options.model.modelId)
+  }
+
   protected getProvider() {
     return createGoogleGenerativeAI({
       apiKey: this.options.apiKey,
       baseURL: normalizeGeminiHost(this.options.apiHost).apiHost,
+      fetch: createFetchWithProxy(this.options.useProxy, this.dependencies),
     })
   }
 
@@ -95,7 +102,7 @@ export default class CustomGemini extends AbstractAISDKModel {
       },
     }
 
-    if (GEMINI_IMAGE_MODELS.includes(this.options.model.modelId)) {
+    if (this.isImageGenerationModel()) {
       settings.providerOptions = {
         google: {
           ...providerParams,
@@ -117,7 +124,7 @@ export default class CustomGemini extends AbstractAISDKModel {
     signal?: AbortSignal,
     callback?: (picBase64: string) => void
   ): Promise<string[]> {
-    if (!GEMINI_IMAGE_MODELS.includes(this.options.model.modelId)) {
+    if (!this.isImageGenerationModel()) {
       throw new ApiError('This Gemini model does not support image generation')
     }
 
@@ -175,6 +182,7 @@ export default class CustomGemini extends AbstractAISDKModel {
         url: `${apiHost}/models?key=${this.options.apiKey}`,
         method: 'GET',
         headers: {},
+        useProxy: this.options.useProxy,
       })
       const json: Response = await res.json()
 

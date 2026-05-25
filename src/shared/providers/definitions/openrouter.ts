@@ -172,6 +172,7 @@ export const openRouterProvider = defineProvider({
         topP: config.settings.topP,
         maxOutputTokens: config.settings.maxTokens,
         stream: config.settings.stream,
+        useProxy: config.providerSetting.useProxy,
       },
       config.dependencies
     )

@@ -18,6 +18,7 @@ export default class SiliconFlow extends OpenAICompatible {
         topP: options.topP,
         maxOutputTokens: options.maxOutputTokens,
         stream: options.stream,
+        useProxy: options.useProxy,
       },
       dependencies
     )

@@ -2,6 +2,7 @@ import { createMistral } from '@ai-sdk/mistral'
 import { extractReasoningMiddleware, wrapLanguageModel } from 'ai'
 import AbstractAISDKModel from '../../../models/abstract-ai-sdk'
 import { fetchRemoteModels } from '../../../models/openai-compatible'
+import { createFetchWithProxy } from '../../../models/utils/fetch-proxy'
 import type { ProviderModelInfo } from '../../../types'
 import type { ModelDependencies } from '../../../types/adapters'
 
@@ -12,6 +13,7 @@ interface Options {
   topP?: number
   maxOutputTokens?: number
   stream?: boolean
+  useProxy?: boolean
 }
 
 export default class MistralAI extends AbstractAISDKModel {
@@ -46,6 +48,7 @@ export default class MistralAI extends AbstractAISDKModel {
     const mistral = createMistral({
       apiKey: this.options.apiKey,
       baseURL: 'https://api.mistral.ai/v1',
+      fetch: createFetchWithProxy(this.options.useProxy, this.dependencies),
     })
 
     return {
@@ -67,7 +70,7 @@ export default class MistralAI extends AbstractAISDKModel {
       {
         apiHost: 'https://api.mistral.ai/v1',
         apiKey: this.options.apiKey,
-        useProxy: false,
+        useProxy: this.options.useProxy,
       },
       this.dependencies
     ).catch((err) => {

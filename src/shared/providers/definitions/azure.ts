@@ -29,6 +29,7 @@ export const azureProvider = defineProvider({
         imageGenerateNum: config.settings.imageGenerateNum || 1,
         injectDefaultMetadata: config.globalSettings.injectDefaultMetadata,
         stream: config.settings.stream,
+        useProxy: config.providerSetting.useProxy,
       },
       config.dependencies
     )

@@ -17,6 +17,7 @@ export default class Groq extends OpenAICompatible {
         topP: options.topP,
         maxOutputTokens: options.maxOutputTokens,
         stream: options.stream,
+        useProxy: options.useProxy,
       },
       dependencies
     )

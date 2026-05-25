@@ -2,6 +2,7 @@ import { type AnthropicProviderOptions, createAnthropic } from '@ai-sdk/anthropi
 import AbstractAISDKModel, { type CallSettings } from '../../../models/abstract-ai-sdk'
 import { ApiError } from '../../../models/errors'
 import type { CallChatCompletionOptions } from '../../../models/types'
+import { createFetchWithProxy } from '../../../models/utils/fetch-proxy'
 import type { ProviderModelInfo } from '../../../types'
 import type { ModelDependencies } from '../../../types/adapters'
 import { normalizeClaudeHost } from '../../../utils/llm_utils'
@@ -16,6 +17,7 @@ interface Options {
   stream?: boolean
   extraHeaders?: Record<string, string>
   customFetch?: typeof globalThis.fetch
+  useProxy?: boolean
   authToken?: string
   isOAuth?: boolean
 }
@@ -37,7 +39,7 @@ export default class Claude extends AbstractAISDKModel {
     return createAnthropic({
       ...authOptions,
       baseURL: normalizeClaudeHost(this.options.claudeApiHost).apiHost,
-      fetch: this.options.customFetch,
+      fetch: this.options.customFetch ?? createFetchWithProxy(this.options.useProxy, this.dependencies),
       headers: {
         'anthropic-dangerous-direct-browser-access': 'true',
         ...this.options.extraHeaders,
@@ -102,6 +104,7 @@ export default class Claude extends AbstractAISDKModel {
       url: url,
       method: 'GET',
       headers,
+      useProxy: this.options.useProxy,
     })
     const json: Response = await res.json()
     if (!json['data']) {

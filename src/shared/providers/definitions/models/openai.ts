@@ -19,6 +19,7 @@ interface Options {
   injectDefaultMetadata: boolean
   useProxy: boolean
   stream?: boolean
+  listModelsFallback?: ProviderModelInfo[]
 }
 
 export default class OpenAI extends AbstractAISDKModel {
@@ -82,6 +83,12 @@ export default class OpenAI extends AbstractAISDKModel {
         useProxy: this.options.useProxy,
       },
       this.dependencies
-    )
+    ).catch((error) => {
+      if (this.options.listModelsFallback) {
+        console.warn(`[OpenAI] Failed to fetch remote models for ${this.options.apiHost}, using fallback.`, error)
+        return this.options.listModelsFallback
+      }
+      throw error
+    })
   }
 }

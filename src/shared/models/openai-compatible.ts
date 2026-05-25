@@ -116,17 +116,23 @@ interface ListModelsResponse {
 }
 
 export async function fetchRemoteModels(
-  params: { apiHost: string; apiKey: string; useProxy?: boolean },
+  params: { apiHost: string; apiKey: string; useProxy?: boolean; customFetch?: typeof globalThis.fetch },
   dependencies: ModelDependencies
 ) {
-  const response = await dependencies.request.apiRequest({
-    url: `${params.apiHost}/models`,
-    method: 'GET',
-    headers: {
-      Authorization: `Bearer ${params.apiKey}`,
-    },
-    useProxy: params.useProxy,
-  })
+  const headers = {
+    Authorization: `Bearer ${params.apiKey}`,
+  }
+  const response = params.customFetch
+    ? await params.customFetch(`${params.apiHost}/models`, {
+        method: 'GET',
+        headers,
+      })
+    : await dependencies.request.apiRequest({
+        url: `${params.apiHost}/models`,
+        method: 'GET',
+        headers,
+        useProxy: params.useProxy,
+      })
   const json: ListModelsResponse = await response.json()
   if (!json.data) {
     throw new ApiError(JSON.stringify(json))

@@ -74,6 +74,7 @@ export const claudeProvider = defineProvider({
         extraHeaders: oauthHeaders,
         customFetch:
           isOAuth && credentialManager ? createBearerOAuthFetch(config.dependencies, credentialManager) : undefined,
+        useProxy: config.providerSetting.useProxy,
         // OAuth uses SDK's built-in authToken for Bearer auth instead of apiKey
         authToken: isOAuth ? config.effectiveApiKey : undefined,
         isOAuth,

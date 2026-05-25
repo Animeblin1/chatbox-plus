@@ -1,5 +1,6 @@
 import { createOpenAICompatible } from '@ai-sdk/openai-compatible'
 import AbstractAISDKModel from '../../../models/abstract-ai-sdk'
+import { createFetchWithProxy } from '../../../models/utils/fetch-proxy'
 import type { ProviderModelInfo, ToolUseScope } from '../../../types'
 import type { ModelDependencies } from '../../../types/adapters'
 
@@ -12,6 +13,7 @@ interface Options {
   topP?: number
   maxOutputTokens?: number
   stream?: boolean
+  useProxy?: boolean
 }
 
 const Host = 'https://ark.cn-beijing.volces.com'
@@ -42,7 +44,7 @@ export default class VolcEngine extends AbstractAISDKModel {
       apiKey: this.options.apiKey,
       baseURL: Host,
       fetch: async (_input, init) => {
-        return fetch(`${Host}${Path}`, init)
+        return createFetchWithProxy(this.options.useProxy, this.dependencies)(`${Host}${Path}`, init)
       },
     })
   }
