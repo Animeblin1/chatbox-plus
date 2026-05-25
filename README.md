@@ -7,76 +7,19 @@ This is the repository for Chatbox Plus, an unofficial modified fork of Chatbox 
 Chatbox Plus is not affiliated with ChatboxAI or the upstream Chatbox project.
 This fork is distributed under the GPLv3 license.
 
-[Chatbox is going open-source Again!](https://github.com/chatboxai/chatbox/issues/2266)
+Upstream source: [chatboxai/chatbox](https://github.com/chatboxai/chatbox)
 
-We regularly sync code from the pro repo to this repo, and vice versa.
+## Downloads
 
-### Download for Desktop
+Chatbox Plus builds should be downloaded from this fork's [GitHub Releases](https://github.com/Labyrinth0419/chatbox-plus/releases) when available. If no release has been published yet, build from source with the commands below.
 
-<table style="width: 100%">
-  <tr>
-    <td width="25%" align="center">
-      <b>Windows</b>
-    </td>
-    <td width="25%" align="center" colspan="2">
-      <b>MacOS</b>
-    </td>
-    <td width="25%" align="center">
-      <b>Linux</b>
-    </td>
-  </tr>
-  <tr style="text-align: center">
-    <td align="center" valign="middle">
-      <a href='https://chatboxai.app/?c=download-windows'>
-        <img src='./doc/statics/windows.png' style="height:24px; width: 24px" />
-        <br />
-        <b>Setup.exe</b>
-      </a>
-    </td>
-    <td align="center" valign="middle">
-      <a href='https://chatboxai.app/?c=download-mac-intel'>
-        <img src='./doc/statics/mac.png' style="height:24px; width: 24px" />
-        <br />
-        <b>Intel</b>
-      </a>
-    </td>
-    <td align="center" valign="middle">
-      <a href='https://chatboxai.app/?c=download-mac-aarch'>
-        <img src='./doc/statics/mac.png' style="height:24px; width: 24px" />
-        <br />
-        <b style="white-space: nowrap;">Apple Silicon</b>
-      </a>
-    </td>
-    <td align="center" valign="middle">
-      <a href='https://chatboxai.app/?c=download-linux'>
-        <img src='./doc/statics/linux.png' style="height:24px; width: 24px" />
-        <br />
-        <b>AppImage</b>
-      </a>
-    </td>
-  </tr>
-</table>
-
-### Download for iOS/Android
-
-<a href='https://apps.apple.com/app/chatbox-ai/id6471368056' style='margin-right: 4px'>
-<img src='./doc/statics/app_store.webp' style="height:38px;" />
-</a>
-<a href='https://play.google.com/store/apps/details?id=xyz.chatboxapp.chatbox' style='margin-right: 4px'>
-<img src='./doc/statics/google_play.png' style="height:38px;" />
-</a>
-<a href='https://chatboxai.app/install?download=android_apk' style='margin-right: 4px; display: inline-flex; justify-content: center'>
-<img src='./doc/statics/android.png' style="height:28px; display: inline-block" />
-.APK
-</a>
-
-For more information: [chatboxai.app](https://chatboxai.app/)
+Official Chatbox download links, mobile store listings, paid services, and account/license services belong to the upstream project and are not part of Chatbox Plus.
 
 ## Quick Start
 
 ### For End Users
-1. Download the appropriate installer for your platform from the [releases page](https://github.com/chatboxai/chatbox/releases)
-2. Install and launch Chatbox
+1. Download the appropriate installer for your platform from the [Chatbox Plus releases page](https://github.com/Labyrinth0419/chatbox-plus/releases), or build from source if no release is available yet
+2. Install and launch Chatbox Plus
 3. Configure your AI provider (OpenAI, Claude, etc.) in settings
 4. Start chatting!
 
@@ -103,33 +46,31 @@ For more information: [chatboxai.app](https://chatboxai.app/)
 <h1 align="center">
 <img src='./doc/statics/icon.png' width='30'>
 <span>
-    Chatbox
-    <span style="font-size:8px; font-weight: normal;">(Community Edition)</span>
+    Chatbox Plus
+    <span style="font-size:8px; font-weight: normal;">(GPLv3 Fork)</span>
 </span>
 </h1>
 <p align="center">
-    <em>Your Ultimate AI Copilot on the Desktop. <br />Chatbox is a desktop client for ChatGPT, Claude and other LLMs, available on Windows, Mac, Linux</em>
+    <em>A GPLv3 desktop client for ChatGPT, Claude and other LLMs, based on Chatbox Community Edition.</em>
 </p>
 
 <p align="center">
-<a href="https://github.com/chatboxai/chatbox/releases" target="_blank">
+<a href="https://github.com/Labyrinth0419/chatbox-plus/releases" target="_blank">
 <img alt="macOS" src="https://img.shields.io/badge/-macOS-black?style=flat-square&logo=apple&logoColor=white" />
 </a>
-<a href="https://github.com/chatboxai/chatbox/releases" target="_blank">
+<a href="https://github.com/Labyrinth0419/chatbox-plus/releases" target="_blank">
 <img alt="Windows" src="https://img.shields.io/badge/-Windows-blue?style=flat-square&logo=windows&logoColor=white" />
 </a>
-<a href="https://github.com/chatboxai/chatbox/releases" target="_blank">
+<a href="https://github.com/Labyrinth0419/chatbox-plus/releases" target="_blank">
 <img alt="Linux" src="https://img.shields.io/badge/-Linux-yellow?style=flat-square&logo=linux&logoColor=white" />
 </a>
-<a href="https://github.com/chatboxai/chatbox/releases" target="_blank">
-<img alt="Downloads" src="https://img.shields.io/github/downloads/chatboxai/chatbox/total.svg?style=flat" />
+<a href="https://github.com/Labyrinth0419/chatbox-plus/releases" target="_blank">
+<img alt="Downloads" src="https://img.shields.io/github/downloads/Labyrinth0419/chatbox-plus/total.svg?style=flat" />
 </a>
 <a href="#features">
 <img alt="Privacy" src="https://img.shields.io/badge/-Local%20First-green?style=flat-square&logo=shield&logoColor=white" />
 </a>
 </p>
-
-<a href="https://www.producthunt.com/posts/chatbox?utm_source=badge-featured&utm_medium=badge&utm_souce=badge-chatbox" target="_blank"><img src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=429547&theme=light" alt="Chatbox - Better&#0032;UI&#0032;&#0038;&#0032;Desktop&#0032;App&#0032;for&#0032;ChatGPT&#0044;&#0032;Claude&#0032;and&#0032;other&#0032;LLMs&#0046; | Product Hunt" style="width: 150px; height: 30px;" width="100" height="40" /></a>
 
 <a href="./doc/statics/snapshot_light.png">
 <img src="./doc/statics/snapshot_light.png" width="400"/>
@@ -225,18 +166,18 @@ For more information: [chatboxai.app](https://chatboxai.app/)
 
 -   [Frequently Asked Questions](./doc/FAQ.md)
 
-## Why I made Chatbox?
+## About This Fork
 
-I developed Chatbox initially because I was debugging some prompts and found myself in need of a simple and easy-to-use prompt and API debugging tool. I thought there might be more people who needed such a tool, so I open-sourced it.
+Chatbox Plus keeps the local-first desktop AI client experience from Chatbox Community Edition while removing upstream account, subscription, and bundled commercial-service dependencies. Users configure their own model providers and API keys.
 
-At first, I didn't know that it would be so popular. I listened to the feedback from the open-source community and continued to develop and improve it. Now, it has become a very useful AI desktop application. There are many users who love Chatbox, and they not only use it for developing and debugging prompts, but also for daily chatting, and even to do some more interesting things like using well-designed prompts to make AI play various professional roles to assist them in everyday work...
+This fork preserves GPLv3 licensing and keeps source code, build scripts, and modification history available in this repository.
 
 ## How to Contribute
 
-We welcome contributions from the community! Here's how you can help make Chatbox better:
+We welcome contributions from the community. Here's how you can help make Chatbox Plus better:
 
 ### 🐛 Reporting Issues
-- Use [GitHub Issues](https://github.com/chatboxai/chatbox/issues) to report bugs or request features
+- Use [GitHub Issues](https://github.com/Labyrinth0419/chatbox-plus/issues) to report bugs or request features
 - Before creating a new issue, please search existing issues to avoid duplicates
 - Provide detailed information including steps to reproduce, expected behavior, and screenshots if applicable
 
@@ -248,7 +189,7 @@ We welcome contributions from the community! Here's how you can help make Chatbo
 5. Submit a pull request with a clear description of the changes
 
 ### 🌍 Translations
-Help make Chatbox accessible to more people by contributing translations:
+Help make Chatbox Plus accessible to more people by contributing translations:
 - Translation files are located in the `src/locales` directory
 - Follow the existing translation format
 - Submit a PR with your translation improvements
@@ -260,8 +201,8 @@ Help make Chatbox accessible to more people by contributing translations:
 
 ### 🌟 Other Ways to Contribute
 - Star the repository to show your support
-- Share Chatbox with others
-- Answer questions in [GitHub Discussions](https://github.com/chatboxai/chatbox/discussions)
+- Share Chatbox Plus with others
+- Answer questions in [GitHub Discussions](https://github.com/Labyrinth0419/chatbox-plus/discussions) if discussions are enabled
 - Provide feedback and suggestions
 
 **Thank you for contributing! 🙏**
@@ -309,7 +250,7 @@ Before you begin, ensure you have the following installed:
 ### Project Structure
 
 ```
-chatbox/
+chatbox-plus/
 ├── src/
 │   ├── main/               # Electron main process
 │   ├── renderer/           # React renderer (UI)
@@ -341,11 +282,11 @@ chatbox/
 
 ## Star History
 
-[![Star History Chart](https://api.star-history.com/svg?repos=chatboxai/chatbox&type=Date)](https://star-history.com/#chatboxai/chatbox&Date)
+[![Star History Chart](https://api.star-history.com/svg?repos=Labyrinth0419/chatbox-plus&type=Date)](https://star-history.com/#Labyrinth0419/chatbox-plus&Date)
 
 ## Contact
 
-[Twitter](https://x.com/ChatboxAI_HQ) | [Email](mailto:hi@chatboxai.com)
+Use [GitHub Issues](https://github.com/Labyrinth0419/chatbox-plus/issues) for project discussion and support.
 
 ## License
 

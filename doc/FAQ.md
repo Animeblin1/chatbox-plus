@@ -4,7 +4,7 @@
     English | <a href="./FAQ-CN.md">中文</a>
 </p>
 
-If you still haven't found the answer you're looking for, feel free to submit an [Issue](https://github.com/Bin-Huang/chatbox/issues/new/choose) as well.
+If you still haven't found the answer you're looking for, feel free to submit an [Issue](https://github.com/Labyrinth0419/chatbox-plus/issues/new/choose).
 
 ### 1001
 
@@ -26,7 +26,7 @@ If everything was working fine before and now you're unable to use the service, 
 
 Please note that this issue is not related to Chatbox. In this situation, it's likely that you're using your own OpenAI API account and your free quota has either been used up or expired (usually due to expiration). You need to log in to your OpenAI account's dashboard and link a credit card to continue using the service. The OpenAI API account has many requirements for credit cards. If your card doesn't meet these requirements, you'll need to resolve this issue yourself (it can be quite frustrating).
 
-**Consider using `Chatbox AI`:** If you don't want to deal with these issues, you can also use Chatbox's built-in `Chatbox AI` service. This service allows you to enjoy AI capabilities without any hassle. Go to the settings page and set the AI Provider to `Chatbox AI`, and you'll see the corresponding options.
+Chatbox Plus does not bundle the upstream Chatbox AI account or subscription service. Configure another supported provider with your own API key, or add a compatible custom provider in Settings.
 
 ### 1003
 

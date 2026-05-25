@@ -4,7 +4,7 @@
     <a href="./FAQ.md">English</a> | 中文
 </p>
 
-这里列举了一些最常见的问题和解决方案。如果你依然没有找到答案，也可以提交一个 [Issue](https://github.com/Bin-Huang/chatbox/issues/new/choose)。
+这里列举了一些最常见的问题和解决方案。如果你依然没有找到答案，也可以提交一个 [Issue](https://github.com/Labyrinth0419/chatbox-plus/issues/new/choose)。
 
 ### 1001
 
@@ -26,7 +26,7 @@
 
 请注意，这个问题和 Chatbox 没有任何关系。这个情况中往往是因为你正在使用自己的 OpenAI API 账户，而你账户中的免费额度已经全部用完或过期了（一般都是因为过期导致的）。你需要自行登录 OpenAI 账户的控制台，绑定一张海外信用卡才能继续使用。OpenAI API 账户对信用卡有很多要求，如果你的信用卡不符合要求，那么你需要自行解决（非常折腾）。
 
-**更推荐使用 `Chatbox AI`：** 如果你不想折腾这些问题，也可以使用 Chatbox 内置的 `Chatbox AI` 服务。这个服务可以让你无需折腾、什么都不用管、轻松使用 AI 能力。前往配置页，将 AI Provider 设置为 `Chatbox AI`，你将看到相应的设置。
+Chatbox Plus 不内置上游 Chatbox AI 账号或订阅服务。你可以在设置中配置其他受支持的模型提供方和自己的 API Key，也可以添加兼容的自定义渠道。
 
 ### 1003
 

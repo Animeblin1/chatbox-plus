@@ -7,70 +7,13 @@
 Chatbox Plus 与 ChatboxAI 或上游 Chatbox 项目无隶属关系。
 本 fork 以 GPLv3 许可证发布。
 
-[Chatbox 再次开源！](https://github.com/chatboxai/chatbox/issues/2266)
+上游来源：[chatboxai/chatbox](https://github.com/chatboxai/chatbox)
 
-我们定期从专业版仓库同步代码到这个仓库，反之亦然。
+## 下载
 
-### 下载电脑端
+Chatbox Plus 的构建产物会发布在本 fork 的 [GitHub Releases](https://github.com/Labyrinth0419/chatbox-plus/releases)。如果当前还没有发布版本，请按照下方构建指南从源码构建。
 
-<table style="width: 100%">
-  <tr>
-    <td width="25%" align="center">
-      <b>Windows</b>
-    </td>
-    <td width="25%" align="center" colspan="2">
-      <b>MacOS</b>
-    </td>
-    <td width="25%" align="center">
-      <b>Linux</b>
-    </td>
-  </tr>
-  <tr style="text-align: center">
-    <td align="center" valign="middle">
-      <a href='https://chatboxai.app/?c=download-windows'>
-        <img src='./statics/windows.png' style="height:24px; width: 24px" />
-        <br />
-        <b>Setup.exe</b>
-      </a>
-    </td>
-    <td align="center" valign="middle">
-      <a href='https://chatboxai.app/?c=download-mac-intel'>
-        <img src='./statics/mac.png' style="height:24px; width: 24px" />
-        <br />
-        <b>Intel</b>
-      </a>
-    </td>
-    <td align="center" valign="middle">
-      <a href='https://chatboxai.app/?c=download-mac-aarch'>
-        <img src='./statics/mac.png' style="height:24px; width: 24px" />
-        <br />
-        <b style="white-space: nowrap;">Apple Silicon</b>
-      </a>
-    </td>
-    <td align="center" valign="middle">
-      <a href='https://chatboxai.app/?c=download-linux'>
-        <img src='./statics/linux.png' style="height:24px; width: 24px" />
-        <br />
-        <b>AppImage</b>
-      </a>
-    </td>
-  </tr>
-</table>
-
-### 下载移动端
-
-<a href='https://apps.apple.com/app/chatbox-ai/id6471368056' style='margin-right: 4px'>
-<img src='./statics/app_store.webp' style="height:38px;" />
-</a>
-<a href='https://play.google.com/store/apps/details?id=xyz.chatboxapp.chatbox' style='margin-right: 4px'>
-<img src='./statics/google_play.png' style="height:38px;" />
-</a>
-<a href='https://chatboxai.app/zh/install?download=android_apk' style='margin-right: 4px; display: inline-flex; justify-content: center'>
-<img src='./statics/android.png' style="height:28px; display: inline-block" />
-.APK
-</a>
-
-更多信息请访问: [chatboxai.app](https://chatboxai.app/)
+上游 Chatbox 的官方下载链接、移动端商店页面、付费服务和账号/license 服务不属于 Chatbox Plus。
 
 ---
 
@@ -78,33 +21,28 @@ Chatbox Plus 与 ChatboxAI 或上游 Chatbox 项目无隶属关系。
 <h1 align="center">
 <img src='./statics/icon.png' width='30'>
 <span>
-    Chatbox
-    <span style="font-size:8px; font-weight: normal;">(Community Edition)</span>
+    Chatbox Plus
+    <span style="font-size:8px; font-weight: normal;">(GPLv3 Fork)</span>
 </span>
 </h1>
 <p align="center">
-    <em>Chatbox 是一个 AI 模型桌面客户端，支持 ChatGPT、Claude、Google Gemini、Ollama 等主流模型，适用于 Windows、Mac、Linux、Web、Android 和 iOS 全平台</em>
+    <em>Chatbox Plus 是基于 Chatbox 社区版的 GPLv3 桌面 AI 客户端，支持 ChatGPT、Claude、Google Gemini、Ollama 等模型服务。</em>
 </p>
 
 <p align="center">
-<a href="https://github.com/chatboxai/chatbox/releases" target="_blank">
+<a href="https://github.com/Labyrinth0419/chatbox-plus/releases" target="_blank">
 <img alt="macOS" src="https://img.shields.io/badge/-macOS-black?style=flat-square&logo=apple&logoColor=white" />
 </a>
-<a href="https://github.com/chatboxai/chatbox/releases" target="_blank">
+<a href="https://github.com/Labyrinth0419/chatbox-plus/releases" target="_blank">
 <img alt="Windows" src="https://img.shields.io/badge/-Windows-blue?style=flat-square&logo=windows&logoColor=white" />
 </a>
-<a href="https://github.com/chatboxai/chatbox/releases" target="_blank">
+<a href="https://github.com/Labyrinth0419/chatbox-plus/releases" target="_blank">
 <img alt="Linux" src="https://img.shields.io/badge/-Linux-yellow?style=flat-square&logo=linux&logoColor=white" />
 </a>
-<a href="https://github.com/chatboxai/chatbox/releases" target="_blank">
-<img alt="下载量" src="https://img.shields.io/github/downloads/chatboxai/chatbox/total.svg?style=flat" />
-</a>
-<a href="https://twitter.com/benn_huang" target="_blank">
-<img alt="Twitter" src="https://img.shields.io/badge/关注-benn_huang-blue?style=flat&logo=Twitter" />
+<a href="https://github.com/Labyrinth0419/chatbox-plus/releases" target="_blank">
+<img alt="下载量" src="https://img.shields.io/github/downloads/Labyrinth0419/chatbox-plus/total.svg?style=flat" />
 </a>
 </p>
-
-<a href="https://www.producthunt.com/posts/chatbox?utm_source=badge-featured&utm_medium=badge&utm_souce=badge-chatbox" target="_blank"><img src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=429547&theme=light" alt="Chatbox - Better&#0032;UI&#0032;&#0038;&#0032;Desktop&#0032;App&#0032;for&#0032;ChatGPT&#0044;&#0032;Claude&#0032;and&#0032;other&#0032;LLMs&#0046; | Product Hunt" style="width: 150px; height: 30px;" width="100" height="40" /></a>
 
 <img src="./statics/demo_desktop_1.jpg" alt="应用截图" style="box-shadow: 2px 2px 10px rgba(0,0,0,0.1); border: 1px solid #ddd; border-radius: 8px; width: 700px" />
 
@@ -153,7 +91,7 @@ Chatbox Plus 与 ChatboxAI 或上游 Chatbox 项目无隶属关系。
     :busts_in_silhouette: 轻松协作并在团队中共享 OpenAI API 资源。[了解更多](../team-sharing/README.md)
 
 -   **跨平台可用性**  
-    :computer: 聊天盒已为 Windows、Mac、Linux 用户准备就绪。
+    :computer: Chatbox Plus 可面向 Windows、Mac、Linux 构建。
 
 -   **通过 Web 版本随处访问**  
     :globe_with_meridians: 在任何设备上使用带有浏览器的 Web 应用程序，随时随地。
@@ -203,31 +141,31 @@ git clone https://github.com/Labyrinth0419/chatbox-plus.git
 2. 安装所需的依赖
 
 ```bash
-npm install
+pnpm install
 ```
 
 3. 启动应用程序（开发模式）
 
 ```bash
-npm run dev
+pnpm run dev
 ```
 
 4. 构建应用程序，为当前平台打包安装程序
 
 ```bash
-npm run package
+pnpm run package
 ```
 
 5. 构建应用程序，为所有平台打包安装程序
 
 ```bash
-npm run package:all
+pnpm run package:all
 ```
 
 ## Star History
 
-[![星星历史图表](https://api.star-history.com/svg?repos=chatboxai/chatbox&type=Date)](https://star-history.com/#chatboxai/chatbox&Date)
+[![星星历史图表](https://api.star-history.com/svg?repos=Labyrinth0419/chatbox-plus&type=Date)](https://star-history.com/#Labyrinth0419/chatbox-plus&Date)
 
 ## 联系方式
 
-[Twitter](https://x.com/ChatboxAI_HQ) | [电子邮件](mailto:hi@chatboxai.com)
+请通过 [GitHub Issues](https://github.com/Labyrinth0419/chatbox-plus/issues) 反馈问题和讨论项目。
