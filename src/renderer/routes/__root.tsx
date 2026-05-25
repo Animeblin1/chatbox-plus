@@ -1,4 +1,4 @@
-import { type RemoteConfig, Theme } from '@shared/types'
+import { Theme } from '@shared/types'
 import { ErrorBoundary } from '@/components/common/ErrorBoundary'
 import Toasts from '@/components/common/Toasts'
 import ExitFullscreenButton from '@/components/layout/ExitFullscreenButton'
@@ -42,14 +42,12 @@ import CssBaseline from '@mui/material/CssBaseline'
 import { ThemeProvider } from '@mui/material/styles'
 import { useQuery } from '@tanstack/react-query'
 import { createRootRoute, Outlet, useLocation } from '@tanstack/react-router'
-import { useAtomValue, useSetAtom } from 'jotai'
+import { useAtomValue } from 'jotai'
 import { useEffect, useMemo, useRef } from 'react'
 import SettingsModal, { navigateToSettings } from '@/modals/Settings'
 import { prefetchModelRegistry } from '@/packages/model-registry'
 import { getOS } from '@/packages/navigator'
-import * as remote from '@/packages/remote'
 import PictureDialog from '@/pages/PictureDialog'
-import RemoteDialogWindow from '@/pages/RemoteDialogWindow'
 import SearchDialog from '@/pages/SearchDialog'
 import platform from '@/platform'
 import { router } from '@/router'
@@ -136,10 +134,6 @@ function Root() {
   const language = useLanguage()
   const initialized = useRef(false)
 
-  const setOpenAboutDialog = useUIStore((s) => s.setOpenAboutDialog)
-
-  const setRemoteConfig = useSetAtom(atoms.remoteConfigAtom)
-
   useEffect(() => {
     if (initialized.current) {
       return
@@ -149,11 +143,6 @@ function Root() {
       // Wait for stores to hydrate from persistent storage
       await Promise.all([initSettingsStore(), initOnboardingStore()])
       void prefetchModelRegistry()
-
-      const remoteConfig = await remote
-        .getRemoteConfig('setting_chatboxai_first')
-        .catch(() => ({ setting_chatboxai_first: false }) as RemoteConfig)
-      setRemoteConfig(async (prev) => ({ ...(await prev), ...remoteConfig }))
 
       // Skip guide-related checks if already on guide or settings/mcp page
       if (location.pathname === '/guide' || location.pathname === '/settings/mcp') {
@@ -184,15 +173,8 @@ function Root() {
         return
       }
 
-      // 是否需要弹出关于窗口（更新后首次启动）
-      // 目前仅在桌面版本更新后首次启动、且网络环境为"外网"的情况下才自动弹窗
-      const shouldShowAboutDialogWhenStartUp = await platform.shouldShowAboutDialogWhenStartUp()
-      if (shouldShowAboutDialogWhenStartUp && remoteConfig.setting_chatboxai_first) {
-        setOpenAboutDialog(true)
-        return
-      }
     })()
-  }, [setOpenAboutDialog, setRemoteConfig, location.pathname, isExceeded, versionLoaded])
+  }, [location.pathname, isExceeded, versionLoaded])
 
   const showSidebar = useUIStore((s) => s.showSidebar)
   const sidebarWidth = useSidebarWidth()
@@ -291,10 +273,6 @@ function Root() {
       {/* <OpenAttachLinkDialog /> */}
       {/* 图片预览 */}
       <PictureDialog />
-      {/* 似乎是从后端拉一个弹窗的配置 */}
-      <RemoteDialogWindow />
-      {/* 手机端举报内容 */}
-      {/* <ReportContentDialog /> */}
       {/* 搜索 */}
       <SearchDialog />
       {/* 没有配置模型时的欢迎弹窗 */}
@@ -573,7 +551,7 @@ const creteMantineTheme = (scale = 1) =>
 export const Route = createRootRoute({
   component: () => {
     useI18nEffect()
-    premiumActions.useAutoValidate() // 每次启动都执行 license 检查，防止用户在lemonsqueezy管理页面中取消了当前设备的激活
+    premiumActions.useAutoValidate()
     useSystemLanguageWhenInit()
     useShortcut()
     const theme = useAppTheme()

@@ -63,7 +63,7 @@ function CopilotSearch() {
       )}
 
       <Stack gap="md">
-        <Text>{t('Chatbox Featured')}</Text>
+        <Text>{t('Featured Copilots')}</Text>
 
         {isLoading && (
           <div className="py-12 text-center">

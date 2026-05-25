@@ -15,46 +15,12 @@ export class AppUpdater {
     })
     const settings = getSettings()
     if (settings.autoUpdate) {
-      // 立即检查一次更新
-      this.tryUpdate()
-
-      // 设置定时器，每小时检查一次更新
-      setInterval(
-        () => {
-          this.tryUpdate()
-        },
-        1000 * 60 * 60
-      ) // 每小时检查一次
-
-      log.info('Update timer started, checking every hour')
+      log.info('Official auto-update feed disabled in no-subscription build')
     }
   }
 
   async tryUpdate() {
-    const feedUrls = [
-      'https://chatboxai.app/api/auto_upgrade',
-      'https://api.chatboxai.app/api/auto_upgrade',
-      'https://api.ai-chatbox.com/api/auto_upgrade',
-      'https://api.chatboxapp.xyz/api/auto_upgrade',
-      'https://api.chatboxai.com/api/auto_upgrade',
-    ]
-    for (const url of feedUrls) {
-      try {
-        autoUpdater.setFeedURL(url)
-        const settings = getSettings()
-
-        if (settings.betaUpdate) {
-          autoUpdater.channel = 'beta'
-          autoUpdater.allowDowngrade = false
-        }
-        const result = await autoUpdater.checkForUpdatesAndNotify()
-        if (result) {
-          return result
-        }
-      } catch (e) {
-        log.error(`auto_updater: attempt failed: ${url}. `, e)
-      }
-    }
+    log.info('Official auto-update feed disabled in no-subscription build')
     return null
   }
 }

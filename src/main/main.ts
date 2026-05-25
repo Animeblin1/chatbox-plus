@@ -434,9 +434,6 @@ if (!gotTheLock) {
       await knowledgeBaseInitPromise
       await createWindow()
       ensureTray()
-      // Remove this if your app does not use auto updates
-      // eslint-disable-next-line
-      new AppUpdater(() => mainWindow?.webContents.send('update-downloaded', {}))
 
       // 处理启动时的 Deep Link (Windows/Linux)
       // macOS 会通过 open-url 事件处理，不需要在这里处理

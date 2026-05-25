@@ -10,11 +10,9 @@ export const CHATBOX_BUILD_PLATFORM = (process.env.CHATBOX_BUILD_PLATFORM || 'un
 
 export const CHATBOX_BUILD_CHANNEL = (process.env.CHATBOX_BUILD_CHANNEL || 'unknown') as 'unknown' | 'google_play'
 
-// api.chatboxai.app
 export const USE_LOCAL_API = process.env.USE_LOCAL_API || ''
 export const USE_BETA_API = process.env.USE_BETA_API || ''
 
-// chatboxai.app
 export const USE_LOCAL_CHATBOX = process.env.USE_LOCAL_CHATBOX || ''
 export const USE_BETA_CHATBOX = process.env.USE_BETA_CHATBOX || ''
 

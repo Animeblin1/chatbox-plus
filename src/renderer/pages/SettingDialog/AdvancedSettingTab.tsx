@@ -108,36 +108,6 @@ export default function AdvancedSettingTab(props: Props) {
           </FormGroup>
         </Box>
       )}
-      {platform.type === 'desktop' && (
-        <Box className="mt-2">
-          <FormGroup>
-            <FormControlLabel
-              control={<Switch />}
-              label={t('Automatic updates')}
-              checked={settingsEdit.autoUpdate}
-              onChange={(e, checked) =>
-                setSettingsEdit({
-                  ...settingsEdit,
-                  autoUpdate: checked,
-                })
-              }
-            />
-            {settingsEdit.autoUpdate && (
-              <FormControlLabel
-                control={<Switch />}
-                label={t('Beta updates')}
-                checked={settingsEdit.betaUpdate}
-                onChange={(e, checked) =>
-                  setSettingsEdit({
-                    ...settingsEdit,
-                    betaUpdate: checked,
-                  })
-                }
-              />
-            )}
-          </FormGroup>
-        </Box>
-      )}
     </Box>
   )
 }
@@ -276,7 +246,7 @@ function ExportAndImport(props: { onCancel: () => void }) {
           <FormGroup className="mb-2">
             {[
               { label: t('Settings'), value: ExportDataItem.Setting },
-              { label: t('API KEY & License'), value: ExportDataItem.Key },
+              { label: t('API Keys'), value: ExportDataItem.Key },
               { label: t('Chat History'), value: ExportDataItem.Conversations },
               { label: t('My Copilots'), value: ExportDataItem.Copilot },
             ].map((item) => (

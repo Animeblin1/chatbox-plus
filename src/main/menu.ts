@@ -196,12 +196,6 @@ export default class MenuBuilder {
       label: 'Help',
       submenu: [
         {
-          label: 'Learn More',
-          click() {
-            shell.openExternal('https://chatboxai.app')
-          },
-        },
-        {
           label: 'Github Repo',
           click() {
             shell.openExternal('https://github.com/chatboxai/chatbox')
@@ -286,12 +280,6 @@ export default class MenuBuilder {
       {
         label: 'Help',
         submenu: [
-          {
-            label: 'Learn More',
-            click() {
-              shell.openExternal('https://chatboxai.app')
-            },
-          },
           {
             label: 'Github Repo',
             click() {

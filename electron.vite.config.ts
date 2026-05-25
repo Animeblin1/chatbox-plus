@@ -45,18 +45,6 @@ export function injectReleaseDate(): Plugin {
 }
 
 /**
- * Vite plugin to replace Plausible data-domain for web builds
- */
-export function replacePlausibleDomain(): Plugin {
-  return {
-    name: 'replace-plausible-domain',
-    transformIndexHtml(html) {
-      return html.replace('data-domain="app.chatboxai.app"', 'data-domain="web.chatboxai.app"')
-    },
-  }
-}
-
-/**
  * Vite plugin to inject platform-appropriate viewport meta content.
  * Desktop builds omit `height=device-height` and `viewport-fit=cover` which trigger
  * Chromium's Virtual Keyboard API on macOS, causing an empty bottom margin on input focus.
@@ -213,7 +201,6 @@ export default defineConfig(({ mode }) => {
         injectViewportContent(isDesktop),
         isWeb ? injectBaseTag() : undefined,
         injectReleaseDate(),
-        isWeb ? replacePlausibleDomain() : undefined,
         visualizer({
           filename: 'release/app/dist/renderer/stats.html',
           open: false,

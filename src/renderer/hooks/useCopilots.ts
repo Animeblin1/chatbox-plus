@@ -1,11 +1,8 @@
 import type { CopilotDetail } from '@shared/types'
-import { useInfiniteQuery, useQuery } from '@tanstack/react-query'
 import { useAtom } from 'jotai'
 import { atomWithStorage } from 'jotai/utils'
 import { useMemo } from 'react'
-import * as remote from '@/packages/remote'
 import storage, { StorageKey } from '@/storage'
-import { useLanguage } from '@/stores/settingsStore'
 
 const myCopilotsAtom = atomWithStorage<CopilotDetail[]>(StorageKey.MyCopilots, [], storage)
 
@@ -58,15 +55,7 @@ export function useMyCopilots() {
 }
 
 export function useRemoteCopilotTags() {
-  const language = useLanguage()
-  const { data: tags, ...others } = useQuery({
-    queryKey: ['remote-copilot-tags', language],
-    queryFn: () => remote.listCopilotTags(language),
-    initialData: [],
-    initialDataUpdatedAt: 0,
-    staleTime: 3600 * 1000,
-  })
-  return { tags, ...others }
+  return { tags: [] as string[], isLoading: false, isFetching: false, isError: false }
 }
 
 type RemoteCopilotsByCursorFilters = {
@@ -76,25 +65,15 @@ type RemoteCopilotsByCursorFilters = {
 }
 
 export function useRemoteCopilotsByCursor(filters?: RemoteCopilotsByCursorFilters) {
-  const language = useLanguage()
-  const { limit = 12, tag, search } = filters ?? {}
-
-  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, ...others } = useInfiniteQuery({
-    queryKey: ['remote-copilots-cursor', language, limit, tag, search],
-    queryFn: ({ pageParam }) => remote.listCopilotsByCursor(language, { limit, cursor: pageParam, tag, search }),
-    getNextPageParam: (lastPage) => lastPage.next_cursor,
-    initialPageParam: undefined as string | undefined,
-    staleTime: 60 * 1000,
-    gcTime: 60 * 1000,
-  })
-
-  const copilots = useMemo(() => data?.pages.flatMap((page) => page.data) ?? [], [data])
+  void filters
 
   return {
-    copilots,
-    fetchNextPage,
-    hasNextPage,
-    isFetchingNextPage,
-    ...others,
+    copilots: [] as CopilotDetail[],
+    fetchNextPage: async () => undefined,
+    hasNextPage: false,
+    isFetchingNextPage: false,
+    isLoading: false,
+    isFetching: false,
+    isError: false,
   }
 }

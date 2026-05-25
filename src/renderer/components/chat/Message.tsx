@@ -11,7 +11,6 @@ import {
   IconCopy,
   IconDotsVertical,
   IconInfoCircle,
-  IconMessageReport,
   IconPencil,
   IconPhotoPlus,
   type IconProps,
@@ -156,10 +155,6 @@ const _Message: FC<Props> = (props) => {
         toastActions.add(t('copied to clipboard'))
       }
     }
-
-  const onReport = useCallback(async () => {
-    await NiceModal.show('report-content', { contentId: getMessageText(msg) || msg.id })
-  }, [msg])
 
   const onDelMsg = useCallback(() => {
     removeMessage(sessionId, msg.id)
@@ -333,15 +328,6 @@ const _Message: FC<Props> = (props) => {
         onClick: quoteMsg,
       },
       { divider: true },
-      ...(msg.role === 'assistant' && platform.type === 'mobile'
-        ? [
-            {
-              text: t('report'),
-              icon: IconMessageReport,
-              onClick: onReport,
-            },
-          ]
-        : []),
       // 开发环境添加测试错误按钮
       ...(process.env.NODE_ENV === 'development'
         ? [
@@ -367,7 +353,6 @@ const _Message: FC<Props> = (props) => {
     [
       t,
       msg.role,
-      onReport,
       quoteMsg,
       onDelMsg,
       onViewMessageJson,
@@ -512,7 +497,6 @@ const _Message: FC<Props> = (props) => {
         {props.sessionType === 'picture' && contentParts.filter((p) => p.type === 'image').length > 0 && (
           <PictureGallery
             pictures={contentParts.filter((p) => p.type === 'image')}
-            onReport={platform.type === 'mobile' ? onReport : undefined}
           />
         )}
         <MessageErrTips
