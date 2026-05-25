@@ -1,26 +1,12 @@
 import { ChatboxAIAPIError } from '@shared/models/errors'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-const getLicenseKeyMock = vi.fn()
 const getExtensionSettingsMock = vi.fn()
-const parseUserLinkProMock = vi.fn()
-const getStoreBlobMock = vi.fn()
 const getParseLinkProviderMock = vi.fn()
 const webSearchExecutorMock = vi.fn()
 
 vi.mock('@/stores/settingActions', () => ({
-  getLicenseKey: () => getLicenseKeyMock(),
   getExtensionSettings: () => getExtensionSettingsMock(),
-}))
-
-vi.mock('@/packages/remote', () => ({
-  parseUserLinkPro: (...args: unknown[]) => parseUserLinkProMock(...args),
-}))
-
-vi.mock('@/platform', () => ({
-  default: {
-    getStoreBlob: (...args: unknown[]) => getStoreBlobMock(...args),
-  },
 }))
 
 vi.mock('@/packages/web-search', () => ({
@@ -50,10 +36,7 @@ async function execParseLink(input: ParseLinkInput, abortSignal?: AbortSignal) {
 
 describe('parseLinkTool', () => {
   beforeEach(() => {
-    getLicenseKeyMock.mockReset()
     getExtensionSettingsMock.mockReset()
-    parseUserLinkProMock.mockReset()
-    getStoreBlobMock.mockReset()
     getParseLinkProviderMock.mockReset()
   })
 
@@ -61,89 +44,18 @@ describe('parseLinkTool', () => {
     vi.clearAllMocks()
   })
 
-  describe('build-in (Chatbox AI) provider', () => {
+  describe('default search provider without parse_link support', () => {
     beforeEach(() => {
       getExtensionSettingsMock.mockReturnValue({ webSearch: { provider: 'build-in' } })
     })
 
-    it('throws license key required when no license is configured', async () => {
-      getLicenseKeyMock.mockReturnValue('')
+    it('throws parse_link_not_supported instead of using a commercial remote parser', async () => {
+      getParseLinkProviderMock.mockReturnValue(null)
 
       await expect(execParseLink({ url: 'https://example.com' })).rejects.toMatchObject({
-        detail: { name: 'chatbox_search_license_key_required' },
+        detail: { name: 'parse_link_not_supported' },
       })
-      expect(parseUserLinkProMock).not.toHaveBeenCalled()
-      expect(getParseLinkProviderMock).not.toHaveBeenCalled()
-    })
-
-    it('calls Chatbox AI remote API for any licensed user (no Pro check)', async () => {
-      // Lite users can call parse_link too — backend has no Pro restriction.
-      getLicenseKeyMock.mockReturnValue('lk-lite-123')
-      parseUserLinkProMock.mockResolvedValue({
-        key: 'uuid-1',
-        title: 'Example Title',
-        storageKey: 'storage-key-1',
-      })
-      getStoreBlobMock.mockResolvedValue('  Hello world from the page.  ')
-
-      const result = await execParseLink({ url: 'https://example.com' })
-
-      expect(parseUserLinkProMock).toHaveBeenCalledWith({
-        licenseKey: 'lk-lite-123',
-        url: 'https://example.com',
-        abortSignal: undefined,
-      })
-      expect(getParseLinkProviderMock).not.toHaveBeenCalled()
-      expect(result).toEqual({
-        url: 'https://example.com',
-        title: 'Example Title',
-        content: 'Hello world from the page.',
-        originalLength: 'Hello world from the page.'.length,
-        truncated: false,
-      })
-    })
-
-    it('truncates content to maxLength', async () => {
-      getLicenseKeyMock.mockReturnValue('lk-123')
-      parseUserLinkProMock.mockResolvedValue({ key: 'k', title: 't', storageKey: 's' })
-      const longContent = 'a'.repeat(20_000)
-      getStoreBlobMock.mockResolvedValue(longContent)
-
-      const result = await execParseLink({ url: 'https://example.com', maxLength: 500 })
-
-      expect(result.content.length).toBe(500)
-      expect(result.originalLength).toBe(20_000)
-      expect(result.truncated).toBe(true)
-    })
-
-    it('forwards abortSignal to remote.parseUserLinkPro', async () => {
-      getLicenseKeyMock.mockReturnValue('lk-123')
-      parseUserLinkProMock.mockResolvedValue({ key: 'k', title: 't', storageKey: 's' })
-      getStoreBlobMock.mockResolvedValue('content')
-      const controller = new AbortController()
-
-      await execParseLink({ url: 'https://example.com' }, controller.signal)
-
-      expect(parseUserLinkProMock).toHaveBeenCalledWith({
-        licenseKey: 'lk-123',
-        url: 'https://example.com',
-        abortSignal: controller.signal,
-      })
-    })
-
-    it('clamps maxLength below minimum (500) and above maximum (50000)', async () => {
-      getLicenseKeyMock.mockReturnValue('lk-123')
-      parseUserLinkProMock.mockResolvedValue({ key: 'k', title: 't', storageKey: 's' })
-      const longContent = 'a'.repeat(60_000)
-      getStoreBlobMock.mockResolvedValue(longContent)
-
-      // Below min: 100 should clamp to 500
-      const tooSmall = await execParseLink({ url: 'https://example.com', maxLength: 100 })
-      expect(tooSmall.content.length).toBe(500)
-
-      // Above max: 999_999 should clamp to 50_000
-      const tooBig = await execParseLink({ url: 'https://example.com', maxLength: 999_999 })
-      expect(tooBig.content.length).toBe(50_000)
+      expect(getParseLinkProviderMock).toHaveBeenCalled()
     })
   })
 
@@ -164,8 +76,6 @@ describe('parseLinkTool', () => {
       const result = await execParseLink({ url: 'https://example.com' }, controller.signal)
 
       expect(parseLinkMock).toHaveBeenCalledWith('https://example.com', controller.signal)
-      expect(parseUserLinkProMock).not.toHaveBeenCalled()
-      expect(getLicenseKeyMock).not.toHaveBeenCalled()
       expect(result).toEqual({
         url: 'https://example.com',
         title: 'Tavily Title',
@@ -217,6 +127,23 @@ describe('parseLinkTool', () => {
       expect(result.content.length).toBe(5_000)
       expect(result.originalLength).toBe(15_000)
       expect(result.truncated).toBe(true)
+    })
+
+    it('clamps maxLength below minimum (500) and above maximum (50000)', async () => {
+      const longContent = 'c'.repeat(60_000)
+      getParseLinkProviderMock.mockReturnValue({
+        parseLink: vi.fn().mockResolvedValue({
+          url: 'https://example.com',
+          title: 't',
+          content: longContent,
+        }),
+      })
+
+      const tooSmall = await execParseLink({ url: 'https://example.com', maxLength: 100 })
+      expect(tooSmall.content.length).toBe(500)
+
+      const tooBig = await execParseLink({ url: 'https://example.com', maxLength: 999_999 })
+      expect(tooBig.content.length).toBe(50_000)
     })
   })
 })

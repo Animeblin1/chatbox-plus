@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-const submitImageGenerationMock = vi.fn()
-const pollTaskUntilCompleteMock = vi.fn()
+const getModelMock = vi.fn()
+const paintMock = vi.fn()
 const createRecordMock = vi.fn()
 const updateRecordMock = vi.fn()
 const setQueryDataMock = vi.fn()
@@ -11,6 +11,10 @@ const setCurrentGeneratingIdMock = vi.fn()
 const setCurrentRecordIdMock = vi.fn()
 const trackEventMock = vi.fn()
 
+vi.mock('@shared/providers', () => ({
+  getModel: (...args: unknown[]) => getModelMock(...args),
+}))
+
 vi.mock('@/adapters', () => ({
   createModelDependencies: vi.fn(async () => ({
     storage: {
@@ -19,18 +23,15 @@ vi.mock('@/adapters', () => ({
   })),
 }))
 
-vi.mock('@/packages/remote', () => ({
-  submitImageGeneration: submitImageGenerationMock,
-  pollTaskUntilComplete: pollTaskUntilCompleteMock,
-  pollImageTask: vi.fn(),
-}))
-
 vi.mock('./imageGenerationStore', () => ({
   IMAGE_GEN_LIST_QUERY_KEY: 'image-gen-list',
   IMAGE_GEN_QUERY_KEY: 'image-gen',
   createRecord: createRecordMock,
   updateRecord: updateRecordMock,
-  addGeneratedImage: vi.fn(),
+  addGeneratedImage: vi.fn(async (id: string, storageKey: string) => ({
+    id,
+    generatedImages: [storageKey],
+  })),
   imageGenerationStore: {
     getState: () => ({
       currentGeneratingId: null,
@@ -51,7 +52,7 @@ vi.mock('./queryClient', () => ({
 vi.mock('./settingsStore', () => ({
   settingsStore: {
     getState: () => ({
-      licenseKey: 'license-key',
+      getSettings: () => ({}),
     }),
   },
 }))
@@ -70,15 +71,24 @@ vi.mock('@/lib/utils', () => ({
 }))
 
 vi.mock('@/platform', () => ({
-  default: {},
+  default: {
+    getConfig: vi.fn(async () => ({})),
+    getImageGenerationStorage: vi.fn(() => ({
+      getById: vi.fn(async () => ({ generatedImages: [] })),
+    })),
+  },
 }))
 
 vi.mock('@/storage', () => ({
-  default: {},
+  default: {
+    setBlob: vi.fn(),
+  },
 }))
 
 vi.mock('@/storage/StoreStorage', () => ({
-  StorageKeyGenerator: {},
+  StorageKeyGenerator: {
+    picture: vi.fn(() => 'generated-storage-key'),
+  },
 }))
 
 describe('imageGenerationActions reference image payload', () => {
@@ -87,43 +97,34 @@ describe('imageGenerationActions reference image payload', () => {
 
     createRecordMock.mockResolvedValue({ id: 'record-1' })
     updateRecordMock.mockImplementation(async (id: string, patch: Record<string, unknown>) => ({ id, ...patch }))
-    submitImageGenerationMock.mockResolvedValue({
-      task_id: 'task-1',
-      items: [{ status: 'pending' }],
-    })
-    pollTaskUntilCompleteMock.mockResolvedValue({
-      items: [
-        {
-          status: 'completed',
-          image_url: 'https://example.com/output.png',
-        },
-      ],
-    })
     getImageMock.mockResolvedValue('data:image/png;base64,AAAA')
+    paintMock.mockResolvedValue([])
+    getModelMock.mockReturnValue({ paint: paintMock })
   })
 
-  it('sends reference images as image_url entries for both URLs and stored images', async () => {
+  it('passes reference images to the configured model for both URLs and stored images', async () => {
     const { createAndGenerate } = await import('./imageGenerationActions')
 
     await createAndGenerate({
       prompt: 'make a variation',
       referenceImages: ['https://example.com/reference.png', 'storage-key-1'],
       model: {
-        provider: 'chatbox-ai',
-        modelId: 'gpt-image-1',
+        provider: 'openai',
+        modelId: 'gpt-image-2',
       },
       imageGenerateNum: 1,
     })
 
     await vi.waitFor(() => {
-      expect(submitImageGenerationMock).toHaveBeenCalledTimes(1)
+      expect(paintMock).toHaveBeenCalledTimes(1)
     })
 
-    expect(submitImageGenerationMock).toHaveBeenCalledWith(
+    expect(paintMock).toHaveBeenCalledWith(
       expect.objectContaining({
-        images: [{ image_url: 'https://example.com/reference.png' }, { image_url: 'data:image/png;base64,AAAA' }],
+        images: [{ imageUrl: 'https://example.com/reference.png' }, { imageUrl: 'data:image/png;base64,AAAA' }],
       }),
-      'license-key'
+      expect.any(AbortSignal),
+      expect.any(Function)
     )
     expect(trackEventMock).toHaveBeenCalledWith('generate_image', expect.objectContaining({ has_reference: true }))
   })
