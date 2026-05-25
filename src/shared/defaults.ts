@@ -1,5 +1,5 @@
 import { v4 as uuidv4 } from 'uuid'
-import { type Config, ModelProviderEnum, type SessionSettings, type Settings, Theme } from './types'
+import { type Config, type SessionSettings, type Settings, Theme } from './types'
 
 export function settings(): Settings {
   return {
@@ -101,7 +101,7 @@ export function settings(): Settings {
     compactionThreshold: 0.6,
 
     autoLaunch: false,
-    autoUpdate: true,
+    autoUpdate: false,
     betaUpdate: false,
 
     shortcuts: {
@@ -123,7 +123,7 @@ export function settings(): Settings {
     },
     extension: {
       webSearch: {
-        provider: 'build-in',
+        provider: 'bing',
         tavilyApiKey: '',
         bochaApiKey: '',
       },
@@ -134,7 +134,7 @@ export function settings(): Settings {
         },
       },
       // documentParser is NOT set here - it uses platform-specific defaults
-      // Desktop: 'local', Mobile/Web: 'chatbox-ai'
+      // Desktop: 'local', Mobile/Web: 'none'
       // See settingsStore.ts for the platform-aware initialization logic
       documentParser: undefined,
     },
@@ -159,16 +159,12 @@ export function getDefaultPrompt() {
 
 export function chatSessionSettings(): SessionSettings {
   return {
-    provider: ModelProviderEnum.ChatboxAI,
-    modelId: 'chatboxai-4',
     maxContextMessageCount: Number.MAX_SAFE_INTEGER,
   }
 }
 
 export function pictureSessionSettings(): SessionSettings {
   return {
-    provider: ModelProviderEnum.ChatboxAI,
-    modelId: 'DALL-E-3',
     imageGenerateNum: 1,
     dalleStyle: 'vivid',
   }

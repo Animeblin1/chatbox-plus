@@ -2,7 +2,7 @@
 /** biome-ignore-all lint/suspicious/noFallthroughSwitchClause: migrate */
 
 import * as defaults from '@shared/defaults'
-import { type ProviderSettings, type Settings, SettingsSchema } from '@shared/types'
+import { ModelProviderEnum, type ProviderSettings, type Settings, SettingsSchema } from '@shared/types'
 import type { DocumentParserConfig } from '@shared/types/settings'
 import deepmerge from 'deepmerge'
 import type { WritableDraft } from 'immer'
@@ -12,6 +12,7 @@ import { immer } from 'zustand/middleware/immer'
 import { getLogger } from '@/lib/utils'
 import platform from '@/platform'
 import storage from '@/storage'
+import { commercialServicesEnabled } from '@/utils/commercial-flags'
 import { mergeProviderSettings, type ProviderSettingsUpdate } from './providerSettings'
 
 const log = getLogger('settings-store')
@@ -19,10 +20,76 @@ const log = getLogger('settings-store')
 /**
  * Returns platform-specific default document parser configuration.
  * - Desktop: 'local' (has full Node.js environment for local parsing)
- * - Mobile/Web: 'none' (only basic text file support by default, user can enable chatbox-ai)
+ * - Mobile/Web: 'none' (only basic text file support by default)
  */
 export function getPlatformDefaultDocumentParser(): DocumentParserConfig {
   return platform.type === 'desktop' ? { type: 'local' } : { type: 'none' }
+}
+
+function sanitizeNoCommercialSettings<T extends Record<string, any>>(input: T): T {
+  if (commercialServicesEnabled || !input) {
+    return input
+  }
+
+  const settings: Record<string, any> = { ...input }
+  if (settings.extension) {
+    settings.extension = { ...settings.extension }
+    if (settings.extension.webSearch?.provider === 'build-in') {
+      settings.extension.webSearch = {
+        ...settings.extension.webSearch,
+        provider: 'bing',
+      }
+    }
+    if (settings.extension.documentParser?.type === 'chatbox-ai') {
+      settings.extension.documentParser = getPlatformDefaultDocumentParser()
+    }
+    if (settings.extension.knowledgeBase?.models) {
+      const models = { ...settings.extension.knowledgeBase.models }
+      if (models.embedding?.providerId === ModelProviderEnum.ChatboxAI) {
+        models.embedding = null
+      }
+      if (models.rerank?.providerId === ModelProviderEnum.ChatboxAI) {
+        models.rerank = null
+      }
+      settings.extension.knowledgeBase = {
+        ...settings.extension.knowledgeBase,
+        models,
+      }
+    }
+  }
+
+  if (settings.providers?.[ModelProviderEnum.ChatboxAI]) {
+    settings.providers = { ...settings.providers }
+    delete settings.providers[ModelProviderEnum.ChatboxAI]
+  }
+
+  for (const key of ['defaultChatModel', 'threadNamingModel', 'searchTermConstructionModel', 'ocrModel']) {
+    if (settings[key]?.provider === ModelProviderEnum.ChatboxAI) {
+      settings[key] = undefined
+    }
+  }
+
+  if (Array.isArray(settings.favoritedModels)) {
+    settings.favoritedModels = settings.favoritedModels.filter((model) => model.provider !== ModelProviderEnum.ChatboxAI)
+  }
+
+  if (settings.mcp?.enabledBuiltinServers?.length) {
+    settings.mcp = {
+      ...settings.mcp,
+      enabledBuiltinServers: [],
+    }
+  }
+
+  settings.licenseKey = ''
+  settings.licenseInstances = undefined
+  settings.licenseDetail = undefined
+  settings.licenseActivationMethod = undefined
+  settings.lastSelectedLicenseByUser = undefined
+  settings.memorizedManualLicenseKey = ''
+  settings.autoUpdate = false
+  settings.betaUpdate = false
+
+  return settings as T
 }
 
 type Action = {
@@ -48,8 +115,9 @@ export const settingsStore = createStore<Settings & Action>()(
             const res = await storage.getItem<(Settings & { __version?: number }) | null>(key, null)
             if (res) {
               const { __version = 0, ...state } = res
+              const sanitizedState = sanitizeNoCommercialSettings(state)
               return JSON.stringify({
-                state,
+                state: sanitizedState,
                 version: __version,
               })
             }
@@ -58,7 +126,7 @@ export const settingsStore = createStore<Settings & Action>()(
           },
           setItem: async (name, value) => {
             const { state, version } = JSON.parse(value) as { state: Settings; version?: number }
-            await storage.setItem(name, { ...state, __version: version || 0 })
+            await storage.setItem(name, { ...sanitizeNoCommercialSettings(state), __version: version || 0 })
           },
           removeItem: async (name) => await storage.removeItem(name),
         })),
@@ -101,7 +169,7 @@ export const settingsStore = createStore<Settings & Action>()(
             }
           }
 
-          return SettingsSchema.parse(settings)
+          return SettingsSchema.parse(sanitizeNoCommercialSettings(settings))
         },
         skipHydration: true,
       }

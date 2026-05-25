@@ -9,9 +9,15 @@ export const aiProviderNameHash: Record<ModelProviderEnum, string> = {
   [ModelProviderEnum.OpenAIResponses]: 'OpenAI Responses API',
   [ModelProviderEnum.Azure]: 'Azure OpenAI API',
   [ModelProviderEnum.ChatGLM6B]: 'ChatGLM API',
-  [ModelProviderEnum.ChatboxAI]: 'Chatbox AI',
+  [ModelProviderEnum.ChatboxAI]: 'Unavailable Provider',
   [ModelProviderEnum.Claude]: 'Claude API',
   [ModelProviderEnum.Gemini]: 'Google Gemini API',
+  [ModelProviderEnum.Qwen]: 'Qwen API',
+  [ModelProviderEnum.QwenPortal]: 'Qwen Portal API',
+  [ModelProviderEnum.MiniMax]: 'MiniMax API',
+  [ModelProviderEnum.MiniMaxCN]: 'MiniMax CN API',
+  [ModelProviderEnum.Moonshot]: 'Moonshot API',
+  [ModelProviderEnum.MoonshotCN]: 'Moonshot CN API',
   [ModelProviderEnum.Ollama]: 'Ollama API',
   [ModelProviderEnum.Groq]: 'Groq API',
   [ModelProviderEnum.DeepSeek]: 'DeepSeek API',
@@ -27,12 +33,6 @@ export const aiProviderNameHash: Record<ModelProviderEnum, string> = {
 }
 
 export const AIModelProviderMenuOptionList = [
-  {
-    value: ModelProviderEnum.ChatboxAI,
-    label: aiProviderNameHash[ModelProviderEnum.ChatboxAI],
-    featured: true,
-    disabled: false,
-  },
   {
     value: ModelProviderEnum.OpenAI,
     label: aiProviderNameHash[ModelProviderEnum.OpenAI],

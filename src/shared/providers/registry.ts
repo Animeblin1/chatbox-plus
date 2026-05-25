@@ -28,12 +28,14 @@ export function clearProviderRegistry(): void {
 }
 
 export function getSystemProviders(): BuiltinProviderBaseInfo[] {
-  return getAllProviders().map((def) => ({
-    id: def.id as BuiltinProviderBaseInfo['id'],
-    name: def.name,
-    type: def.type,
-    description: def.description,
-    urls: def.urls,
-    defaultSettings: def.defaultSettings,
-  }))
+  return getAllProviders()
+    .filter((def) => def.id !== 'chatbox-ai')
+    .map((def) => ({
+      id: def.id as BuiltinProviderBaseInfo['id'],
+      name: def.name,
+      type: def.type,
+      description: def.description,
+      urls: def.urls,
+      defaultSettings: def.defaultSettings,
+    }))
 }

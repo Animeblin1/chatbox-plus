@@ -18,8 +18,6 @@ import {
   artifactSessionEN,
   defaultSessionsForCN,
   defaultSessionsForEN,
-  imageCreatorSessionForCN,
-  imageCreatorSessionForEN,
   mermaidSessionCN,
   mermaidSessionEN,
 } from '@/packages/initial_data'
@@ -231,19 +229,7 @@ async function migrate_0_to_1(dataStore: MigrateStore) {
 }
 
 async function migrate_1_to_2(dataStore: MigrateStore) {
-  const sessions = await dataStore.getData<Session[]>(StorageKey.ChatSessions, [])
-  const lang = await platform.getLocale()
-  if (lang.startsWith('zh')) {
-    if (sessions.find((session) => session.id === imageCreatorSessionForCN.id)) {
-      return
-    }
-    await dataStore.setData(StorageKey.ChatSessions, [...sessions, imageCreatorSessionForCN])
-  } else {
-    if (sessions.find((session) => session.id === imageCreatorSessionForEN.id)) {
-      return
-    }
-    await dataStore.setData(StorageKey.ChatSessions, [...sessions, imageCreatorSessionForEN])
-  }
+  // No-op in the no-subscription build: the historical image demo session used Chatbox AI as a default provider.
 }
 
 async function migrate_2_to_3(dataStore: MigrateStore) {
@@ -587,7 +573,7 @@ async function migrate_9_to_10(dataStore: MigrateStore): Promise<boolean> {
     try {
       if (oldCustomProviders) {
         oldCustomProviders.forEach((cp: any) => {
-          const pid = 'custom-provider-' + uuidv4()
+          const pid = `custom-provider-${uuidv4()}`
           customProviders.push({
             id: pid,
             name: cp.name,
@@ -636,9 +622,9 @@ async function migrate_9_to_10(dataStore: MigrateStore): Promise<boolean> {
 
       if (session.id) {
         const oldSessionSettings = (session.settings || {}) as any
-        const sessionProvider: ModelProvider = oldSessionSettings.aiProvider ?? oldSettings.aiProvider
+        const rawSessionProvider: ModelProvider = oldSessionSettings.aiProvider ?? oldSettings.aiProvider
+        const sessionProvider = rawSessionProvider === ModelProviderEnum.ChatboxAI ? undefined : rawSessionProvider
         const modelKey = {
-          [ModelProviderEnum.ChatboxAI]: 'chatboxAIModel',
           [ModelProviderEnum.OpenAI]: 'model',
           [ModelProviderEnum.Claude]: 'claudeModel',
           [ModelProviderEnum.Gemini]: 'geminiModel',
@@ -652,24 +638,33 @@ async function migrate_9_to_10(dataStore: MigrateStore): Promise<boolean> {
           [ModelProviderEnum.Groq]: 'groqModel',
           [ModelProviderEnum.ChatGLM6B]: 'chatglmModel',
           [ModelProviderEnum.Custom]: 'model',
-        }[sessionProvider]
-        const modelId: string = oldSessionSettings[modelKey!] ?? oldSettings[modelKey!]
+        }[sessionProvider as ModelProvider]
+        const modelId: string | undefined = modelKey
+          ? (oldSessionSettings[modelKey] ?? oldSettings[modelKey])
+          : undefined
+        const pictureProvider = [ModelProviderEnum.OpenAI, ModelProviderEnum.Azure].includes(oldSettings.aiProvider)
+          ? oldSettings.aiProvider
+          : undefined
         session.settings =
           session.type === 'chat'
             ? {
-                provider: sessionProvider,
-                modelId,
+                ...(sessionProvider && modelId
+                  ? {
+                      provider: sessionProvider,
+                      modelId,
+                    }
+                  : {}),
                 maxContextMessageCount: oldSessionSettings.maxContextMessageCount ?? oldSettings.maxContextMessageCount,
                 temperature: oldSessionSettings.temperature ?? oldSettings.temperature,
                 topP: oldSessionSettings.topP ?? oldSettings.topP,
               }
             : {
-                provider: [ModelProviderEnum.ChatboxAI, ModelProviderEnum.OpenAI, ModelProviderEnum.Azure].includes(
-                  oldSettings.aiProvider
-                )
-                  ? oldSettings.aiProvider
-                  : ModelProviderEnum.ChatboxAI,
-                modelId: 'DALL-E-3',
+                ...(pictureProvider
+                  ? {
+                      provider: pictureProvider,
+                      modelId: 'DALL-E-3',
+                    }
+                  : {}),
                 imageGenerateNum: oldSessionSettings.imageGenerateNum ?? 3,
                 dalleStyle: oldSessionSettings.dalleStyle ?? 'vivid',
               }
@@ -782,8 +777,8 @@ async function migrate_13_to_14(dataStore: MigrateStore) {
           generatedImages,
           createdAt: assistantMsg.timestamp || Date.now(),
           model: {
-            provider: session.settings?.provider || ModelProviderEnum.ChatboxAI,
-            modelId: session.settings?.modelId || 'DALL-E-3',
+            provider: session.settings?.provider || '',
+            modelId: session.settings?.modelId || '',
           },
           dalleStyle: session.settings?.dalleStyle,
           imageGenerateNum: session.settings?.imageGenerateNum,

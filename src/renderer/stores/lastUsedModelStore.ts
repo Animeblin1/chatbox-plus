@@ -1,16 +1,25 @@
 import { createStore } from 'zustand'
 import { combine, persist } from 'zustand/middleware'
+import { ModelProviderEnum } from '@shared/types'
+import { commercialServicesEnabled } from '@/utils/commercial-flags'
 import { safeStorage } from './safeStorage'
 
+type ModelSelection = {
+  provider: string
+  modelId: string
+}
+
 type State = {
-  chat?: {
-    provider: string
-    modelId: string
+  chat?: ModelSelection
+  picture?: ModelSelection
+  task?: ModelSelection
+}
+
+function sanitizeModelSelection(model?: ModelSelection) {
+  if (!commercialServicesEnabled && model?.provider === ModelProviderEnum.ChatboxAI) {
+    return undefined
   }
-  picture?: {
-    provider: string
-    modelId: string
-  }
+  return model
 }
 
 export const lastUsedModelStore = createStore(
@@ -22,6 +31,9 @@ export const lastUsedModelStore = createStore(
       } as State,
       (set) => ({
         setChatModel: (provider: string, modelId: string) => {
+          if (!commercialServicesEnabled && provider === ModelProviderEnum.ChatboxAI) {
+            return
+          }
           set({
             chat: {
               provider,
@@ -30,6 +42,9 @@ export const lastUsedModelStore = createStore(
           })
         },
         setPictureModel: (provider: string, modelId: string) => {
+          if (!commercialServicesEnabled && provider === ModelProviderEnum.ChatboxAI) {
+            return
+          }
           set({
             picture: {
               provider,
@@ -41,7 +56,16 @@ export const lastUsedModelStore = createStore(
     ),
     {
       name: 'last-used-model',
-      version: 0,
+      version: 1,
+      migrate: (persisted) => {
+        const state = (persisted || {}) as State
+        return {
+          ...state,
+          chat: sanitizeModelSelection(state.chat),
+          picture: sanitizeModelSelection(state.picture),
+          task: sanitizeModelSelection(state.task),
+        }
+      },
       skipHydration: true,
       storage: safeStorage,
     }

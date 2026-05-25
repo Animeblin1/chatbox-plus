@@ -1,5 +1,6 @@
 import { ModelProviderEnum } from '@shared/types'
 import { getDefaultStore } from 'jotai'
+import { commercialServicesEnabled } from '@/utils/commercial-flags'
 import * as atoms from './atoms'
 import { settingsStore } from './settingsStore'
 
@@ -7,7 +8,7 @@ export function needEditSetting() {
   const settings = settingsStore.getState()
 
   // 激活了chatbox ai
-  if (settings.licenseKey) {
+  if (commercialServicesEnabled && settings.licenseKey) {
     return false
   }
 
@@ -50,11 +51,11 @@ export function getProxy() {
 }
 
 export function getLicenseKey() {
-  return settingsStore.getState().licenseKey
+  return commercialServicesEnabled ? settingsStore.getState().licenseKey : ''
 }
 
 export function getLicenseDetail() {
-  return settingsStore.getState().licenseDetail
+  return commercialServicesEnabled ? settingsStore.getState().licenseDetail : undefined
 }
 
 export function isPaid() {
