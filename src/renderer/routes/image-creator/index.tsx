@@ -61,10 +61,18 @@ import { ReferenceImagesPreview } from './-components/ReferenceImagesPreview'
 import { LoadingShimmer } from './-components/Shimmer'
 
 const log = getLogger('image-creator')
+const TOOLBAR_MODEL_LABEL_MAX_LENGTH = 6
 
 export const Route = createFileRoute('/image-creator/')({
   component: ImageCreatorPage,
 })
+
+function truncateToolbarModelLabel(label: string) {
+  const characters = Array.from(label)
+  return characters.length > TOOLBAR_MODEL_LABEL_MAX_LENGTH
+    ? characters.slice(0, TOOLBAR_MODEL_LABEL_MAX_LENGTH).join('')
+    : label
+}
 
 /* ============================================
    Input Toolbar (Model/Ratio/Reference buttons)
@@ -96,6 +104,7 @@ function InputToolbar({
   onNewCreation,
 }: InputToolbarProps) {
   const { t } = useTranslation()
+  const shortModelDisplayName = truncateToolbarModelLabel(modelDisplayName)
 
   return (
     <Flex align="center" gap={0} className="shrink-0 w-full" justify="space-between">
@@ -106,19 +115,23 @@ function InputToolbar({
           <UnstyledButton
             onClick={onModelDrawerOpen}
             className="flex items-center gap-1 px-2 py-1 rounded-lg hover:bg-[var(--chatbox-background-tertiary)] transition-colors"
+            title={modelDisplayName}
           >
             <IconSparkles size={16} className="text-[var(--chatbox-tint-secondary)]" />
-            <Text size="sm" className="text-[var(--chatbox-tint-secondary)] max-w-[120px] truncate">
-              {modelDisplayName}
+            <Text size="sm" className="text-[var(--chatbox-tint-secondary)] max-w-[6ch] truncate">
+              {shortModelDisplayName}
             </Text>
             <IconChevronRight size={14} className="text-[var(--chatbox-tint-tertiary)] rotate-90" />
           </UnstyledButton>
         ) : (
           <ImageModelSelect onSelect={onModelSelect}>
-            <UnstyledButton className="flex items-center gap-1 px-2 py-1 rounded-lg hover:bg-[var(--chatbox-background-tertiary)] transition-colors">
+            <UnstyledButton
+              className="flex items-center gap-1 px-2 py-1 rounded-lg hover:bg-[var(--chatbox-background-tertiary)] transition-colors"
+              title={modelDisplayName}
+            >
               <IconSparkles size={16} className="text-[var(--chatbox-tint-secondary)]" />
-              <Text size="sm" className="text-[var(--chatbox-tint-secondary)] max-w-[120px] truncate">
-                {modelDisplayName}
+              <Text size="sm" className="text-[var(--chatbox-tint-secondary)] max-w-[6ch] truncate">
+                {shortModelDisplayName}
               </Text>
               <IconChevronRight size={14} className="text-[var(--chatbox-tint-tertiary)] rotate-90" />
             </UnstyledButton>
