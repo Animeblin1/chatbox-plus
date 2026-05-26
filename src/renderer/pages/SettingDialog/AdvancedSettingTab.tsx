@@ -182,6 +182,10 @@ function ExportAndImport(props: { onCancel: () => void }) {
               getData: async (key, defaultValue) => {
                 return importData[key] || defaultValue
               },
+              removeData: (key) => {
+                delete importData[key]
+                return Promise.resolve()
+              },
               setData: async (key, value) => {
                 importData[key] = value
               },

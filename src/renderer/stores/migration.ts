@@ -16,8 +16,7 @@ import { v4 as uuidv4 } from 'uuid'
 import {
   artifactSessionCN,
   artifactSessionEN,
-  defaultSessionsForCN,
-  defaultSessionsForEN,
+  defaultSessionIdsForMigration,
   mermaidSessionCN,
   mermaidSessionEN,
 } from '@/packages/initial_data'
@@ -40,6 +39,7 @@ export async function migrate() {
   await migrateOnData(
     {
       getData: storage.getItem.bind(storage),
+      removeData: storage.removeItem.bind(storage),
       setData: storage.setItemNow.bind(storage),
       setAll: storage.setAll.bind(storage),
       setBlob: storage.setBlob.bind(storage),
@@ -50,12 +50,13 @@ export async function migrate() {
 
 type MigrateStore = {
   getData: <T>(key: StorageKey | string, defaultValue: T) => Promise<T>
+  removeData?: (key: StorageKey | string) => Promise<void>
   setData: <T>(key: StorageKey | string, value: T) => Promise<void>
   setAll: (data: { [key: string]: unknown }) => Promise<void>
   setBlob?: (key: string, value: string) => Promise<void>
 }
 
-export const CurrentVersion = 14
+export const CurrentVersion = 15
 
 async function doMigrateStorage(oldStorage: Storage) {
   // 找到老版本的数据，说明是升级，执行数据迁移操作
@@ -201,6 +202,7 @@ export async function migrateOnData(dataStore: MigrateStore, canRelaunch = true)
     migrate_11_to_12,
     migrate_12_to_13,
     migrate_13_to_14,
+    migrate_14_to_15,
   ]
 
   for (; configVersion < CurrentVersion; configVersion++) {
@@ -354,10 +356,7 @@ async function migrate_8_to_9(dataStore: MigrateStore): Promise<boolean> {
     oldSessions.map((session) => session.id)
   )
 
-  const defaultSessionIds = uniq([
-    ...defaultSessionsForEN.map((session) => session.id),
-    ...defaultSessionsForCN.map((session) => session.id),
-  ])
+  const defaultSessionIds = uniq(defaultSessionIdsForMigration)
 
   // 如果 intersectSessionIds 里还有值，说明之前成功执行过 7-8 的 migration，跳过找回步骤
   if (difference(intersectSessionIds, defaultSessionIds).length !== 0) {
@@ -796,5 +795,28 @@ async function migrate_13_to_14(dataStore: MigrateStore) {
   }
 
   log.info(`migrate_13_to_14, migrated ${migratedCount} image generation records`)
+  return false
+}
+
+async function migrate_14_to_15(dataStore: MigrateStore) {
+  const defaultSessionIds = new Set(defaultSessionIdsForMigration)
+  const chatSessionList = await dataStore.getData<SessionMeta[]>(StorageKey.ChatSessionsList, [])
+  const cleanedSessionList = chatSessionList.filter((sessionMeta) => !defaultSessionIds.has(sessionMeta.id))
+  const removedSessionIds = chatSessionList
+    .filter((sessionMeta) => defaultSessionIds.has(sessionMeta.id))
+    .map((sessionMeta) => sessionMeta.id)
+
+  if (removedSessionIds.length === 0) {
+    return false
+  }
+
+  await dataStore.setData(StorageKey.ChatSessionsList, cleanedSessionList)
+
+  const removeData = dataStore.removeData
+  if (removeData) {
+    await Promise.all(removedSessionIds.map((sessionId) => removeData(StorageKeyGenerator.session(sessionId))))
+  }
+
+  log.info(`migrate_14_to_15, removed default sessions: ${removedSessionIds.length}`)
   return false
 }

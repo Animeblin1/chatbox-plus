@@ -346,6 +346,7 @@ vi.mock('store', () => ({
 vi.mock('@/packages/initial_data', () => ({
   artifactSessionCN: { id: 'artifact-cn' },
   artifactSessionEN: { id: 'artifact-en' },
+  defaultSessionIdsForMigration: ['artifact-cn', 'artifact-en', 'default-en', 'default-cn', 'mermaid-cn', 'mermaid-en'],
   defaultSessionsForCN: [],
   defaultSessionsForEN: [],
   imageCreatorSessionForCN: { id: 'image-cn' },
@@ -391,16 +392,16 @@ describe('migrateStorage test', () => {
   it('should skip migration when config version is already current', async () => {
     const { initData } = await import('@/setup/init_data')
 
-    // Setup: Desktop v1.17.0 - configVersion = 13 (current) in IPC file storage
-    ipcFileData[StorageKey.ConfigVersion] = JSON.stringify(13)
+    // Setup: current configVersion in IPC file storage
+    ipcFileData[StorageKey.ConfigVersion] = JSON.stringify(15)
 
     const migration = await import('./migration')
     await migration._migrateStorageForTest()
 
     // Should not initialize data or set version when already at current version
     expect(initData).not.toHaveBeenCalled()
-    // configVersion should remain 13
-    expect(ipcFileData[StorageKey.ConfigVersion]).toBe(JSON.stringify(13))
+    // configVersion should remain current
+    expect(ipcFileData[StorageKey.ConfigVersion]).toBe(JSON.stringify(15))
   })
 
   it('should initialize data on first run (configVersion = 0, no old storage)', async () => {
@@ -417,9 +418,53 @@ describe('migrateStorage test', () => {
     const migration = await import('./migration')
     await migration._migrateStorageForTest()
 
-    // Should set current version (13) to IPC file storage (Desktop platform)
-    expect(ipcFileData[StorageKey.ConfigVersion]).toBe(JSON.stringify(13))
+    // Should set current version to IPC file storage (Desktop platform)
+    expect(ipcFileData[StorageKey.ConfigVersion]).toBe(JSON.stringify(15))
     expect(initData).toHaveBeenCalled()
+  })
+
+  it('should remove seeded default sessions during data migration', async () => {
+    const migration = await import('./migration')
+    const data: Record<string, unknown> = {
+      [StorageKey.ConfigVersion]: 14,
+      [StorageKey.ChatSessionsList]: [
+        { id: 'default-en', name: 'Just chat' },
+        { id: 'user-session', name: 'User Session' },
+        { id: 'mermaid-cn', name: '图表' },
+      ],
+      'session:default-en': { id: 'default-en', name: 'Just chat', messages: [] },
+      'session:user-session': { id: 'user-session', name: 'User Session', messages: [] },
+      'session:mermaid-cn': { id: 'mermaid-cn', name: '图表', messages: [] },
+    }
+    const removedKeys: string[] = []
+
+    await migration.migrateOnData(
+      {
+        getData: <T>(key: string, defaultValue: T) =>
+          Promise.resolve((Object.prototype.hasOwnProperty.call(data, key) ? data[key] : defaultValue) as T),
+        removeData: (key) => {
+          removedKeys.push(key)
+          delete data[key]
+          return Promise.resolve()
+        },
+        setData: (key, value) => {
+          data[key] = value
+          return Promise.resolve()
+        },
+        setAll: (items) => {
+          Object.assign(data, items)
+          return Promise.resolve()
+        },
+      },
+      false
+    )
+
+    expect(data[StorageKey.ConfigVersion]).toBe(15)
+    expect(data[StorageKey.ChatSessionsList]).toEqual([{ id: 'user-session', name: 'User Session' }])
+    expect(data['session:default-en']).toBeUndefined()
+    expect(data['session:mermaid-cn']).toBeUndefined()
+    expect(data['session:user-session']).toEqual({ id: 'user-session', name: 'User Session', messages: [] })
+    expect(removedKeys).toEqual(expect.arrayContaining(['session:default-en', 'session:mermaid-cn']))
   })
 
   it('should not migrate when old storage type matches current storage type', async () => {
@@ -791,7 +836,7 @@ describe('migrateStorage test', () => {
     await migration._migrateStorageForTest()
 
     // Current storage reads configVersion from sqliteData, which is 7 (not 0)
-    // Since configVersion (7) < CurrentVersion (13), it checks for migration
+    // Since configVersion (7) < CurrentVersion, it checks for migration
     // But since old and current storage are same type, no migration occurs
     // And since configVersion is NOT 0, initData() is also not called
 

@@ -1,7 +1,7 @@
 import { migrateMessage } from '@/utils/message'
-import { type Session } from '../../shared/types'
+import type { Session } from '../../shared/types'
 
-export const defaultSessionsForEN: Session[] = [
+const defaultSessionsForENData: Session[] = [
   {
     id: 'justchat-b612-406a-985b-3ab4d2c482ff',
     name: 'Just chat',
@@ -203,7 +203,7 @@ export const defaultSessionsForEN: Session[] = [
   },
 ]
 
-export const defaultSessionsForCN: Session[] = [
+const defaultSessionsForCNData: Session[] = [
   {
     id: '81cfc426-48b4-4a13-ad42-bfcfc4544299',
     name: '小红书文案生成器 (示例)',
@@ -286,7 +286,7 @@ export const defaultSessionsForCN: Session[] = [
     starred: false,
     copilotId: 'chatbox-featured:21',
   },
-  ...defaultSessionsForEN,
+  ...defaultSessionsForENData,
 ]
 
 export const artifactSessionCN: Session = {
@@ -783,5 +783,18 @@ mindmap
   threads: [],
 }
 
-defaultSessionsForCN.unshift(artifactSessionCN, mermaidSessionCN)
-defaultSessionsForEN.unshift(artifactSessionEN, mermaidSessionEN)
+export const defaultSessionIdsForMigration = Array.from(
+  new Set(
+    [
+      ...defaultSessionsForENData,
+      ...defaultSessionsForCNData,
+      artifactSessionCN,
+      artifactSessionEN,
+      mermaidSessionCN,
+      mermaidSessionEN,
+    ].map((session) => session.id)
+  )
+)
+
+export const defaultSessionsForEN: Session[] = []
+export const defaultSessionsForCN: Session[] = []

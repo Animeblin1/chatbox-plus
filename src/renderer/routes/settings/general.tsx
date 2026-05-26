@@ -419,6 +419,10 @@ const ImportExportDataSection = () => {
           await migrateOnData(
             {
               getData: (key, defaultValue) => Promise.resolve(importData[key] ?? defaultValue),
+              removeData: (key) => {
+                delete importData[key]
+                return Promise.resolve()
+              },
               setData: (key, value) => {
                 importData[key] = value
                 return Promise.resolve()
