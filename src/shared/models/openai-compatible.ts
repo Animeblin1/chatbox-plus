@@ -115,6 +115,20 @@ interface ListModelsResponse {
   }[]
 }
 
+function inferOpenAICompatibleModelType(item: ListModelsResponse['data'][number]): ProviderModelInfo['type'] {
+  if (item.architecture?.output_modalities?.includes('image')) {
+    return 'image'
+  }
+
+  const modelId = item.id.toLowerCase()
+  const modelName = modelId.split('/').pop() || modelId
+  if (modelName.startsWith('gpt-image-') || modelName.startsWith('dall-e-') || modelName.startsWith('imagen-')) {
+    return 'image'
+  }
+
+  return 'chat'
+}
+
 export async function fetchRemoteModels(
   params: { apiHost: string; apiKey: string; useProxy?: boolean; customFetch?: typeof globalThis.fetch },
   dependencies: ModelDependencies
@@ -140,7 +154,7 @@ export async function fetchRemoteModels(
   return json.data.map((item) => {
     const modelInfo: ProviderModelInfo = {
       modelId: item.id,
-      type: 'chat',
+      type: inferOpenAICompatibleModelType(item),
     }
 
     // Add nickname from OpenRouter name field
