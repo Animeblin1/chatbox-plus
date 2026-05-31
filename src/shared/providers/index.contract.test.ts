@@ -5,7 +5,7 @@ import { getModelsDevProviderId } from '../model-registry/provider-mapping'
 import type { ProviderModelInfo, ProviderSettings, SessionSettings } from '../types'
 import type { ModelDependencies } from '../types/adapters'
 import { ModelProviderEnum } from '../types/provider'
-import { getAllProviders } from './index'
+import { getAllProviders, getModel } from './index'
 
 describe('provider control-plane contracts', () => {
   it('registers providers with unique ids', () => {
@@ -99,5 +99,45 @@ describe('provider control-plane contracts', () => {
         expect(supportedModelIds.has(curatedModelId.toLowerCase())).toBe(true)
       }
     }
+  })
+
+  it('merges builtin model capabilities when saved provider model metadata is incomplete', () => {
+    const dependencies: ModelDependencies = {
+      platformType: 'desktop',
+      request: {
+        fetchWithOptions: async () => new Response(),
+        apiRequest: async () => new Response(),
+      },
+      storage: {
+        saveImage: async () => '',
+        getImage: async () => '',
+      },
+      sentry: {
+        captureException: () => {},
+        withScope: () => {},
+      },
+      getRemoteConfig: () => ({}),
+    }
+
+    const model = getModel(
+      {
+        provider: ModelProviderEnum.OpenAI,
+        modelId: 'gpt-5.5',
+      },
+      {
+        ...getDefaultSettings(),
+        providers: {
+          [ModelProviderEnum.OpenAI]: {
+            apiKey: 'test-api-key',
+            apiHost: 'https://lucen.plus',
+            models: [{ modelId: 'gpt-5.5' }],
+          },
+        },
+      },
+      newConfigs(),
+      dependencies
+    )
+
+    expect(model.isSupportVision()).toBe(true)
   })
 })

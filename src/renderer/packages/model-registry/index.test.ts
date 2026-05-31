@@ -9,6 +9,13 @@ const registry = {
       contextWindow: 400_000,
       maxOutput: 128_000,
     },
+    'gpt-5.5': {
+      modelId: 'gpt-5.5',
+      type: 'chat' as const,
+      capabilities: ['tool_use'],
+      contextWindow: 1_050_000,
+      maxOutput: 128_000,
+    },
   },
   'github-copilot': {
     'gpt-4o': {
@@ -45,5 +52,21 @@ describe('provider-aware model-registry lookups', () => {
 
     expect(getProviderModelContextWindowSync('openai', 'gpt-4o:ft-team')).toBe(400_000)
     expect(getProviderModelContextWindowSync('github-copilot', 'gpt-4o:ft-team')).toBe(128_000)
+  })
+
+  it('preserves saved model capabilities when enriching renderer model lists', async () => {
+    const { enrichModelsFromRegistry } = await import('./index')
+
+    const models = enrichModelsFromRegistry(
+      [
+        {
+          modelId: 'gpt-5.5',
+          capabilities: ['vision'],
+        },
+      ],
+      'openai'
+    )
+
+    expect(models[0].capabilities).toEqual(['vision', 'tool_use'])
   })
 })

@@ -8,7 +8,9 @@ import { getRegistrySync } from './fetch'
  * Replaces the backend API call to getProviderModelsInfo.
  *
  * Enrichment strategy:
- * - capabilities, contextWindow, maxOutput: registry data OVERWRITES existing values
+ * - capabilities: merge saved values with registry values
+ *   (user choices must remain effective for runtime feature gates)
+ * - contextWindow, maxOutput: registry data overwrites existing values
  *   (these are factual data, registry is more authoritative and up-to-date)
  * - nickname: only filled when missing (user may have customized it)
  * - type: only filled when missing (embedding/rerank may be set by provider definition)
@@ -28,7 +30,10 @@ export function enrichModelsFromRegistry(models: ProviderModelInfo[], chatboxPro
 
     return {
       ...model,
-      capabilities: meta.capabilities.length > 0 ? meta.capabilities : model.capabilities,
+      capabilities:
+        meta.capabilities.length > 0
+          ? Array.from(new Set([...(model.capabilities || []), ...meta.capabilities]))
+          : model.capabilities,
       contextWindow: meta.contextWindow > 0 ? meta.contextWindow : model.contextWindow,
       maxOutput: meta.maxOutput > 0 ? meta.maxOutput : model.maxOutput,
       nickname: model.nickname || meta.name,

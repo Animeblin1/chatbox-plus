@@ -51,7 +51,9 @@ async function convertContentParts<T extends TextPart | ImagePart | FilePart>(
             return { type: 'text', text: `This is an image, OCR Result: \n${c.ocrResult}` } as T
           }
           const resolved = await resolveImageData(c.storageKey, dependencies)
-          if (!resolved) return null
+          if (!resolved) {
+            throw new Error('Failed to read attached image. Please remove it and attach it again.')
+          }
           if (imageType === 'image') {
             return { type: 'image', image: resolved.base64Data, mediaType: resolved.mediaType } as T
           }

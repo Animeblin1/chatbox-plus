@@ -90,16 +90,22 @@ export function getProviderSettings(setting: SessionSettings, globalSettings: Se
  */
 function getModelConfig(settings: SessionSettings, globalSettings: Settings, provider: string): ProviderModelInfo {
   const providerSetting = globalSettings.providers?.[provider] || {}
+  const defaultModel =
+    getSystemProviders()
+      .find((p) => p.id === provider)
+      ?.defaultSettings?.models?.find((m) => m.modelId === settings.modelId) ||
+    getProviderDefinition(provider)?.defaultSettings?.models?.find((m) => m.modelId === settings.modelId)
 
   let model = providerSetting.models?.find((m) => m.modelId === settings.modelId)
   if (!model) {
-    model = getSystemProviders()
-      .find((p) => p.id === provider)
-      ?.defaultSettings?.models?.find((m) => m.modelId === settings.modelId)
-  }
-  if (!model) {
-    const registryProvider = getProviderDefinition(provider)
-    model = registryProvider?.defaultSettings?.models?.find((m) => m.modelId === settings.modelId)
+    model = defaultModel
+  } else if (defaultModel) {
+    model = {
+      ...defaultModel,
+      ...model,
+      capabilities: Array.from(new Set([...(defaultModel.capabilities || []), ...(model.capabilities || [])])),
+      labels: Array.from(new Set([...(defaultModel.labels || []), ...(model.labels || [])])),
+    }
   }
   if (!model) {
     model = {
