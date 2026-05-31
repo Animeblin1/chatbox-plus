@@ -9,6 +9,7 @@ import { BingNewsSearch } from './bing-news'
 import { QueritSearch } from './querit'
 import { TavilySearch } from './tavily'
 import { BochaSearch } from './bocha'
+import { DuckDuckGoSearch } from './duckduckgo'
 
 const MAX_CONTEXT_ITEMS = 10
 
@@ -23,7 +24,7 @@ function getSearchProviders() {
   switch (provider) {
     case 'build-in':
     case 'bing':
-      selectedProviders.push(new BingSearch())
+      selectedProviders.push(new BingSearch({ useOfficialProxy: settings.webSearch.useProxy }))
       if (language !== 'zh-Hans') {
         selectedProviders.push(new BingNewsSearch()) // 国内无法使用
       }
@@ -52,6 +53,9 @@ function getSearchProviders() {
       }
       selectedProviders.push(new BochaSearch(settings.webSearch.bochaApiKey))
       break
+    case 'duckduckgo':
+      selectedProviders.push(new DuckDuckGoSearch({ useOfficialProxy: settings.webSearch.useProxy }))
+      break
     default:
       throw new Error(`Unsupported search provider: ${provider}`)
   }
@@ -65,7 +69,6 @@ async function _searchRelatedResults(query: string, signal?: AbortSignal) {
     providers.map(async (provider) => {
       try {
         const result = await provider.search(query, signal)
-        console.debug(`web search result for "${query}":`, result.items)
         return result
       } catch (err) {
         console.error(err)
@@ -92,8 +95,6 @@ async function _searchRelatedResults(query: string, signal?: AbortSignal) {
     i++
   } while (hasMore && items.length < MAX_CONTEXT_ITEMS)
 
-  console.debug('web search items', items)
-
   return items.map((item) => ({
     title: item.title,
     snippet: truncate(item.snippet, { length: 150 }),
@@ -108,9 +109,17 @@ export const webSearchExecutor = async (
   { query }: { query: string },
   { abortSignal }: { abortSignal?: AbortSignal }
 ) => {
+  const settings = getExtensionSettings()
+  const provider = settings.webSearch.provider
+  const language = getLanguage()
+  const providerOptions =
+    provider === 'querit'
+      ? `${settings.webSearch.queritMaxResults ?? ''}:${settings.webSearch.queritTimeRange ?? ''}`
+      : ''
+  const proxyOption = settings.webSearch.useProxy ? 'proxy' : 'direct'
   const searchResults = await cachified({
     cache,
-    key: `search-context:${query}`,
+    key: `search-context:${provider}:${language}:${providerOptions}:${proxyOption}:${query}`,
     ttl: 1000 * 60 * 5,
     getFreshValue: () => _searchRelatedResults(query, abortSignal),
   })

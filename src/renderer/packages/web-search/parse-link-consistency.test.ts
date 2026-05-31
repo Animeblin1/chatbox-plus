@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { BingSearch } from '@/packages/web-search/bing'
 import { BingNewsSearch } from '@/packages/web-search/bing-news'
 import { BochaSearch } from '@/packages/web-search/bocha'
+import { DuckDuckGoSearch } from '@/packages/web-search/duckduckgo'
 import { PROVIDERS_WITH_PARSE_LINK } from '@/packages/web-search'
 import { QueritSearch } from '@/packages/web-search/querit'
 import { TavilySearch } from '@/packages/web-search/tavily'
@@ -28,6 +29,7 @@ describe('parse_link capability consistency', () => {
     { id: 'build-in', instance: new BingSearch() },
     { id: 'bing', instance: new BingSearch() },
     { id: 'bing-news', instance: new BingNewsSearch() },
+    { id: 'duckduckgo', instance: new DuckDuckGoSearch() },
     { id: 'tavily', instance: new TavilySearch('stub-api-key') },
     { id: 'bocha', instance: new BochaSearch('stub-api-key') },
     { id: 'querit', instance: new QueritSearch('stub-api-key') },

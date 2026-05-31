@@ -124,6 +124,7 @@ export function settings(): Settings {
     extension: {
       webSearch: {
         provider: 'bing',
+        useProxy: false,
         tavilyApiKey: '',
         bochaApiKey: '',
       },

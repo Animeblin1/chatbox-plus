@@ -1,4 +1,4 @@
-import { Button, Flex, PasswordInput, Select, Stack, Text, Title, Tooltip } from '@mantine/core'
+import { Button, Flex, PasswordInput, Select, Stack, Switch, Text, Title, Tooltip } from '@mantine/core'
 import { IconCheck, IconX } from '@tabler/icons-react'
 import { createFileRoute } from '@tanstack/react-router'
 import { ofetch } from 'ofetch'
@@ -6,7 +6,9 @@ import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { AdaptiveSelect } from '@/components/AdaptiveSelect'
 import { PROVIDERS_WITH_PARSE_LINK } from '@/packages/web-search'
+import { BingSearch } from '@/packages/web-search/bing'
 import { BochaSearch } from '@/packages/web-search/bocha'
+import { DuckDuckGoSearch } from '@/packages/web-search/duckduckgo'
 import { QUERIT_SEARCH_URL } from '@/packages/web-search/querit'
 import platform from '@/platform'
 import { useSettingsStore } from '@/stores/settingsStore'
@@ -20,6 +22,7 @@ export function RouteComponent() {
   const setSettings = useSettingsStore((state) => state.setSettings)
   const extension = useSettingsStore((state) => state.extension)
   const selectedProvider = extension.webSearch.provider === 'build-in' ? 'bing' : extension.webSearch.provider
+  const supportsOfficialProxy = selectedProvider === 'bing' || selectedProvider === 'duckduckgo'
 
   const [checkingQuerit, setCheckingQuerit] = useState(false)
   const [queritAvailable, setQueritAvailable] = useState<boolean>()
@@ -37,7 +40,7 @@ export function RouteComponent() {
           body: { query: 'Chatbox' },
         })
         setQueritAvailable(true)
-      } catch (e) {
+      } catch {
         setQueritAvailable(false)
       } finally {
         setCheckingQuerit(false)
@@ -54,7 +57,7 @@ export function RouteComponent() {
       try {
         await new BochaSearch(extension.webSearch.bochaApiKey).search('Chatbox')
         setBochaAvailable(true)
-      } catch (e) {
+      } catch {
         setBochaAvailable(false)
       } finally {
         setCheckingBocha(false)
@@ -83,11 +86,34 @@ export function RouteComponent() {
           },
         })
         setTavilyAvaliable(true)
-      } catch (e) {
+      } catch {
         setTavilyAvaliable(false)
       } finally {
         setCheckingTavily(false)
       }
+    }
+  }
+
+  const [checkingFreeProvider, setCheckingFreeProvider] = useState(false)
+  const [freeProviderAvailable, setFreeProviderAvailable] = useState<boolean>()
+  const checkFreeProvider = async () => {
+    if (!supportsOfficialProxy) return
+    setCheckingFreeProvider(true)
+    setFreeProviderAvailable(undefined)
+    const controller = new AbortController()
+    const timeout = setTimeout(() => controller.abort(), 15_000)
+    try {
+      const provider =
+        selectedProvider === 'duckduckgo'
+          ? new DuckDuckGoSearch({ useOfficialProxy: extension.webSearch.useProxy })
+          : new BingSearch({ useOfficialProxy: extension.webSearch.useProxy })
+      const result = await provider.search('Chatbox', controller.signal)
+      setFreeProviderAvailable(result.items.length > 0)
+    } catch {
+      setFreeProviderAvailable(false)
+    } finally {
+      clearTimeout(timeout)
+      setCheckingFreeProvider(false)
     }
   }
 
@@ -99,26 +125,67 @@ export function RouteComponent() {
         comboboxProps={{ withinPortal: true, withArrow: true }}
         data={[
           { value: 'bing', label: 'Bing Search (Free)' },
+          { value: 'duckduckgo', label: 'DuckDuckGo Search (Free)' },
           { value: 'tavily', label: 'Tavily' },
           { value: 'bocha', label: 'BoCha' },
           { value: 'querit', label: 'Querit' },
         ]}
         value={selectedProvider}
-        onChange={(e) =>
-          e &&
+        onChange={(e) => {
+          if (!e) return
+          setFreeProviderAvailable(undefined)
           setSettings({
             extension: {
               ...extension,
               webSearch: {
                 ...extension.webSearch,
-                provider: e as 'bing' | 'tavily' | 'bocha' | 'querit',
+                provider: e as 'bing' | 'duckduckgo' | 'tavily' | 'bocha' | 'querit',
               },
             },
           })
-        }
+        }}
         label={t('Search Provider')}
         maw={320}
       />
+      {supportsOfficialProxy && (
+        <Stack gap="xs">
+          <Switch
+            label={t('Improve Network Compatibility')}
+            checked={extension.webSearch.useProxy || false}
+            onChange={(e) => {
+              setFreeProviderAvailable(undefined)
+              setSettings({
+                extension: {
+                  ...extension,
+                  webSearch: {
+                    ...extension.webSearch,
+                    useProxy: e.currentTarget.checked,
+                  },
+                },
+              })
+            }}
+          />
+          <Text size="xs" c="chatbox-gray">
+            {t('Use proxy to resolve CORS and other network issues')}
+          </Text>
+          <Flex align="center" gap="xs">
+            <Button color="blue" variant="light" onClick={checkFreeProvider} loading={checkingFreeProvider}>
+              {t('Check')}
+            </Button>
+            {typeof freeProviderAvailable === 'boolean' ? (
+              freeProviderAvailable ? (
+                <Text size="xs" c="chatbox-success">
+                  {t('Connection successful!')}
+                </Text>
+              ) : (
+                <Text size="xs" c="chatbox-error">
+                  {t('Connection failed!')}
+                </Text>
+              )
+            ) : null}
+          </Flex>
+        </Stack>
+      )}
       <Stack gap={4}>
         <Text size="xs" c="chatbox-gray">
           {t('Provided tools')}
@@ -328,7 +395,9 @@ export function RouteComponent() {
               <Flex align="center" gap="xs">
                 <Text size="sm">{t('Max Results')}</Text>
                 <Tooltip label={t('Maximum number of results to return.')}>
-                  <Text size="sm" c="gray">ⓘ</Text>
+                  <Text size="sm" c="gray">
+                    ⓘ
+                  </Text>
                 </Tooltip>
               </Flex>
               <Select
@@ -367,7 +436,9 @@ export function RouteComponent() {
               <Flex align="center" gap="xs">
                 <Text size="sm">{t('Time Range')}</Text>
                 <Tooltip label={t('Time range of the search. For example, the last month.')}>
-                  <Text size="sm" c="gray">ⓘ</Text>
+                  <Text size="sm" c="gray">
+                    ⓘ
+                  </Text>
                 </Tooltip>
               </Flex>
               <Select

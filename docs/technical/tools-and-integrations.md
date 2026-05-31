@@ -1,6 +1,6 @@
 # 工具与集成系统
 
-> Last updated: 2026-02
+> Last updated: 2026-05
 
 本文档描述 Chatbox Plus 的工具（Tool）与外部集成系统。关于整体架构和进程模型，请参阅 [`./architecture.md`](./architecture.md)。
 
@@ -59,6 +59,7 @@ Web Search 采用抽象基类模式（`src/renderer/packages/web-search/base.ts`
 |--------|------|---------|----------------------|------|
 | Bing | `bing.ts` | ✓ | ✗ | 免费使用，国际覆盖 |
 | Bing News | `bing-news.ts` | ✓ | ✗ | 新闻专项搜索，非中文环境自动启用 |
+| DuckDuckGo | `duckduckgo.ts` | ✓ | ✗ | 免费使用，隐私友好的通用搜索 |
 | Tavily | `tavily.ts` | ✓ | ✓（调用 `/extract`） | 高质量 AI 搜索，需用户自备 API Key |
 | BoCha | `bocha.ts` | ✓ | ✗ | 国内搜索 API |
 | Querit | `querit.ts` | ✓ | ✗ | 多源聚合搜索 |
@@ -66,6 +67,8 @@ Web Search 采用抽象基类模式（`src/renderer/packages/web-search/base.ts`
 每个供应商通过 `supportsParseLink` 实例标志声明自己是否实现了 `parseLink`。基类默认返回 `false`，需要的子类用 `override supportsParseLink = true` 显式声明。
 
 基类还封装了跨平台的 HTTP 请求能力：移动端通过 Capacitor HTTP 插件发起请求（绕过 CORS 限制），桌面端和 Web 端使用 `ofetch`。
+
+Bing 与 DuckDuckGo 可通过 `extension.webSearch.useProxy` 开启 Chatbox 官方代理转发，请求会把完整目标 URL 放入 `CHATBOX-TARGET-URI` header 并访问 `https://cors-proxy.chatboxai.app/proxy-api/completions`。该选项用于缓解 CORS、区域网络或直连超时问题；如果搜索站点返回验证码或反爬页面，可用性检查仍会失败。
 
 ### parse_link 能力的双源一致性
 
@@ -126,7 +129,7 @@ Web Search 采用抽象基类模式（`src/renderer/packages/web-search/base.ts`
 | 提供方 | 执行路径 | 失败模式 |
 |--------|---------|---------|
 | `tavily` | `getParseLinkProvider().parseLink()` → Tavily `/extract` API | 缺 API key 抛 `tavily_api_key_required`；提取空抛 `parse_link_failed` |
-| 其他（`bing` / `bocha` / `querit`） | 不会注入 `parse_link`，模型看不到此工具 | — |
+| 其他（`bing` / `duckduckgo` / `bocha` / `querit`） | 不会注入 `parse_link`，模型看不到此工具 | — |
 
 错误抛出采用 AI/用户双层结构：`Error.message`（传给 `ChatboxAIAPIError` 构造器的第一参数）携带技术原因供 AI 推理（例如 "Tavily extract API returned no results for {url}"），`detail.i18nKey` 则给用户渲染本地化的友好提示。
 
