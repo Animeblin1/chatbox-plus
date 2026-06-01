@@ -6,6 +6,7 @@ import type { ModelMessage, ToolSet } from 'ai'
 import { t } from 'i18next'
 import { uniqueId } from 'lodash'
 import { createModelDependencies } from '@/adapters'
+import * as settingActions from '@/stores/settingActions'
 import { settingsStore } from '@/stores/settingsStore'
 import type {
   ModelInterface,
@@ -13,13 +14,13 @@ import type {
   OnResultChangeWithCancel,
   OnStatusChange,
 } from '../../../shared/models/types'
-import {
-  type KnowledgeBase,
-  type Message,
-  type MessageInfoPart,
-  type MessageToolCallPart,
-  type ProviderOptions,
-  type StreamTextResult,
+import type {
+  KnowledgeBase,
+  Message,
+  MessageInfoPart,
+  MessageToolCallPart,
+  ProviderOptions,
+  StreamTextResult,
 } from '../../../shared/types'
 import { mcpController } from '../mcp/controller'
 import { convertToModelMessages, injectModelSystemPrompt } from './message-utils'
@@ -31,15 +32,25 @@ import {
   knowledgeBaseSearchByPromptEngineering,
   searchByPromptEngineering,
 } from './tools'
+import curlToolSet from './toolsets/curl'
 import fileToolSet from './toolsets/file'
 import { getToolSet } from './toolsets/knowledge-base'
+import { getUtilityToolSet } from './toolsets/utility'
 import websearchToolSet, { webSearchTool } from './toolsets/web-search'
+
+type WebPromptSearchResults = Parameters<typeof constructMessagesWithSearchResults>[1]
+type KnowledgeBasePromptSearchResults = Parameters<typeof constructMessagesWithKnowledgeBaseResults>[1]
+type PromptSearchResult = {
+  query: string
+  searchResults: WebPromptSearchResults | KnowledgeBasePromptSearchResults
+  type?: 'knowledge_base' | 'web' | 'none'
+}
 
 /**
  * 处理搜索结果并返回模型响应的通用函数
  */
 async function handleSearchResult(
-  result: { query: string; searchResults: any[]; type?: 'knowledge_base' | 'web' | 'none' },
+  result: PromptSearchResult,
   toolName: string,
   model: ModelInterface,
   messages: Message[],
@@ -69,8 +80,8 @@ async function handleSearchResult(
 
   const messagesWithResults =
     result.type === 'knowledge_base' || toolName === 'query_knowledge_base'
-      ? constructMessagesWithKnowledgeBaseResults(messages, result.searchResults)
-      : constructMessagesWithSearchResults(messages, result.searchResults)
+      ? constructMessagesWithKnowledgeBaseResults(messages, result.searchResults as KnowledgeBasePromptSearchResults)
+      : constructMessagesWithSearchResults(messages, result.searchResults as WebPromptSearchResults)
 
   const chatResult = await model.chat(await convertToModelMessages(messagesWithResults), {
     signal: controller.signal,
@@ -95,10 +106,14 @@ async function ocrMessages(messages: Message[]) {
     throw ChatboxAIAPIError.fromCodeName('model_not_support_image_2', 'model_not_support_image_2')
   }
 
-  const ocrProviderName = settings.ocrModel!.provider
+  const ocrModelSetting = settings.ocrModel
+  if (!ocrModelSetting) {
+    throw ChatboxAIAPIError.fromCodeName('model_not_support_image_2', 'model_not_support_image_2')
+  }
+
+  const ocrProviderName = ocrModelSetting.provider
   try {
     const dependencies = await createModelDependencies()
-    const ocrModelSetting = settings.ocrModel!
     const modelSettings = getModelSettings(settings, ocrModelSetting.provider, ocrModelSetting.model)
     const ocrModel = getModel(modelSettings, settings, { uuid: '123' }, dependencies)
     await imageOCR(ocrModel, messages)
@@ -141,6 +156,8 @@ export async function streamText(
   const needFileToolSet = hasFileOrLink && model.isSupportToolUse()
   const kbNotSupported = knowledgeBase && !model.isSupportToolUse('knowledge-base')
   const webNotSupported = webBrowsing && !model.isSupportToolUse('web-browsing')
+  const toolSettings = settingActions.getToolSettings()
+  const utilityToolSet = model.isSupportToolUse() ? getUtilityToolSet() : { description: '', tools: {} }
 
   // 1. inject system prompt for tool use
   let toolSetInstructions = ''
@@ -161,6 +178,12 @@ export async function streamText(
   }
   if (webBrowsing && !webNotSupported) {
     toolSetInstructions += websearchToolSet.description
+    if (toolSettings.curl.enabled) {
+      toolSetInstructions += curlToolSet.description
+    }
+  }
+  if (utilityToolSet.description) {
+    toolSetInstructions += utilityToolSet.description
   }
 
   params.messages = injectModelSystemPrompt(
@@ -286,6 +309,12 @@ export async function streamText(
     }
     if (webBrowsing) {
       tools.web_search = webSearchTool
+      if (toolSettings.curl.enabled) {
+        tools = {
+          ...tools,
+          ...curlToolSet.tools,
+        }
+      }
     }
     if (kbToolSet) {
       tools = {
@@ -301,7 +330,10 @@ export async function streamText(
       }
     }
 
-    console.debug('tools', tools)
+    tools = {
+      ...tools,
+      ...utilityToolSet.tools,
+    }
 
     result = await model.chat(coreMessages, {
       sessionId,

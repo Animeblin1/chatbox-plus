@@ -139,6 +139,32 @@ export function settings(): Settings {
       // See settingsStore.ts for the platform-aware initialization logic
       documentParser: undefined,
     },
+    tools: {
+      curl: {
+        enabled: true,
+        useOfficialProxy: false,
+        timeoutMs: 15000,
+        maxResponseChars: 20000,
+      },
+      jsonQuery: {
+        enabled: true,
+      },
+      textTransform: {
+        enabled: true,
+      },
+      datetime: {
+        enabled: true,
+      },
+      htmlExtract: {
+        enabled: true,
+      },
+      urlTool: {
+        enabled: true,
+      },
+      csvPreview: {
+        enabled: true,
+      },
+    },
     mcp: {
       servers: [],
       enabledBuiltinServers: [],

@@ -1,6 +1,5 @@
 import { v4 as uuidv4 } from 'uuid'
 import {
-  type CompactionPoint,
   type Message,
   type MessageRole,
   MessageRoleEnum,
@@ -15,7 +14,7 @@ export type UpdaterFn<T extends object> = (data: T | null | undefined) => T
 
 export type MessageTokenCountResult = { id: string; tokenCountMap: TokenCountMap; reused: boolean }
 
-export type SettingWindowTab = 'ai' | 'display' | 'chat' | 'advanced' | 'extension' | 'mcp'
+export type SettingWindowTab = 'ai' | 'display' | 'chat' | 'advanced' | 'extension' | 'mcp' | 'tools'
 
 export type ExportChatScope = 'all_threads' | 'current_thread'
 

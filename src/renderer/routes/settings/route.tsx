@@ -11,6 +11,7 @@ import {
   IconInfoCircle,
   IconKeyboard,
   IconMessages,
+  IconTools,
   IconWorldWww,
 } from '@tabler/icons-react'
 import { createFileRoute, Link, Outlet, useCanGoBack, useRouter, useRouterState } from '@tanstack/react-router'
@@ -27,23 +28,33 @@ import { featureFlags } from '@/utils/feature-flags'
 const ITEMS = [
   {
     key: 'provider',
+    path: '/settings/provider',
     label: 'Model Provider',
     icon: <IconCategory className="w-full h-full" />,
   },
   {
     key: 'default-models',
+    path: '/settings/default-models',
     label: 'Default Models',
     icon: <IconBox className="w-full h-full" />,
   },
   {
     key: 'web-search',
+    path: '/settings/web-search',
     label: 'Web Search',
     icon: <IconWorldWww className="w-full h-full" />,
+  },
+  {
+    key: 'tools',
+    path: '/settings/tools',
+    label: 'Tool Settings',
+    icon: <IconTools className="w-full h-full" />,
   },
   ...(featureFlags.mcp
     ? [
         {
           key: 'mcp',
+          path: '/settings/mcp',
           label: 'MCP',
           icon: <IconCircleDottedLetterM className="w-full h-full" />,
         },
@@ -53,6 +64,7 @@ const ITEMS = [
     ? [
         {
           key: 'knowledge-base',
+          path: '/settings/knowledge-base',
           label: 'Knowledge Base',
           icon: <IconBook className="w-full h-full" />,
         },
@@ -60,11 +72,13 @@ const ITEMS = [
     : []),
   {
     key: 'document-parser',
+    path: '/settings/document-parser',
     label: 'Document Parser',
     icon: <IconFileText className="w-full h-full" />,
   },
   {
     key: 'chat',
+    path: '/settings/chat',
     label: 'Chat Settings',
     icon: <IconMessages className="w-full h-full" />,
   },
@@ -73,16 +87,18 @@ const ITEMS = [
     : [
         {
           key: 'hotkeys',
+          path: '/settings/hotkeys',
           label: 'Keyboard Shortcuts',
           icon: <IconKeyboard className="w-full h-full" />,
         },
       ]),
   {
     key: 'general',
+    path: '/settings/general',
     label: 'General Settings',
     icon: <IconAdjustmentsHorizontal className="w-full h-full" />,
   },
-]
+] as const
 
 export const Route = createFileRoute('/settings')({
   component: RouteComponent,
@@ -139,11 +155,10 @@ export function SettingsRoot() {
           {ITEMS.map((item) => (
             <Link
               disabled={
-                routerState.location.pathname === `/settings/${item.key}` ||
-                routerState.location.pathname.startsWith(`/settings/${item.key}/`)
+                routerState.location.pathname === item.path || routerState.location.pathname.startsWith(`${item.path}/`)
               }
               key={item.key}
-              to={`/settings/${item.key}` as any}
+              to={item.path}
               className={'block no-underline w-full'}
             >
               <Flex

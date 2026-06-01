@@ -37,6 +37,14 @@ export const settingsAtom = atom(
     const settings = Object.assign({}, defaults.settings(), _settings)
     settings.shortcuts = Object.assign({}, defaults.settings().shortcuts, _settings.shortcuts)
     settings.mcp = Object.assign({}, defaults.settings().mcp, _settings.mcp)
+    settings.tools = {
+      ...defaults.settings().tools,
+      ..._settings.tools,
+      curl: {
+        ...defaults.settings().tools.curl,
+        ..._settings.tools?.curl,
+      },
+    }
     // 移除已废弃的属性
     return omit(settings, ['maxTokens', 'maxContextSize']) as Settings
   },
@@ -49,15 +57,15 @@ export const settingsAtom = atom(
     // }
     // 如果快捷键配置发生变化，需要重新注册快捷键
     if (newSettings.shortcuts !== settings.shortcuts) {
-      platform.ensureShortcutConfig(newSettings.shortcuts)
+      void platform.ensureShortcutConfig(newSettings.shortcuts)
     }
     // 如果代理配置发生变化，需要重新注册代理
     if (newSettings.proxy !== settings.proxy) {
-      platform.ensureProxyConfig({ proxy: newSettings.proxy })
+      void platform.ensureProxyConfig({ proxy: newSettings.proxy })
     }
     // 如果开机自启动配置发生变化，需要重新设置开机自启动
     if (Boolean(newSettings.autoLaunch) !== Boolean(settings.autoLaunch)) {
-      platform.ensureAutoLaunch(newSettings.autoLaunch)
+      void platform.ensureAutoLaunch(newSettings.autoLaunch)
     }
     set(_settingsAtom, newSettings)
   }

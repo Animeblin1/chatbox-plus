@@ -29,11 +29,14 @@ import { RouteComponent as SettingsProviderProviderIdRouteComponent } from '@/ro
 import { RouteComponent as SettingsProviderIndexRouteComponent } from '@/routes/settings/provider/index'
 import { RouteComponent as SettingsProviderRouteRouteComponent } from '@/routes/settings/provider/route'
 import { SettingsRoot } from '@/routes/settings/route'
+import { RouteComponent as SettingsToolsCurlRouteComponent } from '@/routes/settings/tools/curl'
+import { RouteComponent as SettingsToolsIndexRouteComponent } from '@/routes/settings/tools/index'
+import { RouteComponent as SettingsToolsRouteRouteComponent } from '@/routes/settings/tools/route'
 import { RouteComponent as SettingsWebSearchRouteComponent } from '@/routes/settings/web-search'
 
-export type SettingsModalProps = {}
+export type SettingsModalProps = Record<string, never>
 
-export const SettingsModal: FC<SettingsModalProps> = (props) => {
+export const SettingsModal: FC<SettingsModalProps> = () => {
   const { t } = useTranslation()
   const location = useLocation()
   const { needRoomForMacWindowControls } = useNeedRoomForWinControls()
@@ -151,6 +154,24 @@ const SettingsWebSearchRoute = createRoute({
   getParentRoute: () => RootRoute,
 })
 
+const SettingsToolsRouteRoute = createRoute({
+  component: SettingsToolsRouteRouteComponent,
+  path: '/settings/tools',
+  getParentRoute: () => RootRoute,
+})
+
+const SettingsToolsIndexRoute = createRoute({
+  component: SettingsToolsIndexRouteComponent,
+  path: '/',
+  getParentRoute: () => SettingsToolsRouteRoute,
+})
+
+const SettingsToolsCurlRoute = createRoute({
+  component: SettingsToolsCurlRouteComponent,
+  path: '/curl',
+  getParentRoute: () => SettingsToolsRouteRoute,
+})
+
 const SettingsMcpRoute = createRoute({
   component: SettingsMcpRouteComponent,
   path: '/settings/mcp',
@@ -199,16 +220,16 @@ const SettingsProviderProviderIdRoute = createRoute({
   getParentRoute: () => SettingsProviderRouteRoute,
 })
 
-SettingsProviderRouteRoute.addChildren([
-  SettingsProviderIndexRoute,
-  SettingsProviderProviderIdRoute,
-])
+SettingsProviderRouteRoute.addChildren([SettingsProviderIndexRoute, SettingsProviderProviderIdRoute])
+
+SettingsToolsRouteRoute.addChildren([SettingsToolsIndexRoute, SettingsToolsCurlRoute])
 
 const routeTree = RootRoute.addChildren([
   SettingsIndexRoute,
   SettingsGeneralRoute,
   SettingsChatRoute,
   SettingsWebSearchRoute,
+  SettingsToolsRouteRoute,
   SettingsMcpRoute,
   SettingsKnowledgeBaseRoute,
   SettingsDocumentParserRoute,

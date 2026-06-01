@@ -251,6 +251,50 @@ const ExtensionSettingsSchema = z.object({
   documentParser: DocumentParserConfigSchema.optional(),
 })
 
+const DEFAULT_TOOL_SETTINGS = {
+  curl: {
+    enabled: true,
+    useOfficialProxy: false,
+    timeoutMs: 15000,
+    maxResponseChars: 20000,
+  },
+  jsonQuery: { enabled: true },
+  textTransform: { enabled: true },
+  datetime: { enabled: true },
+  htmlExtract: { enabled: true },
+  urlTool: { enabled: true },
+  csvPreview: { enabled: true },
+}
+
+const ToolSettingsSchema = z
+  .object({
+    curl: z.object({
+      enabled: z.boolean().optional().catch(true),
+      useOfficialProxy: z.boolean().optional().catch(false),
+      timeoutMs: z.number().int().min(1000).max(60000).optional().catch(15000),
+      maxResponseChars: z.number().int().min(500).max(100000).optional().catch(20000),
+    }),
+    jsonQuery: z.object({
+      enabled: z.boolean().optional().catch(true),
+    }),
+    textTransform: z.object({
+      enabled: z.boolean().optional().catch(true),
+    }),
+    datetime: z.object({
+      enabled: z.boolean().optional().catch(true),
+    }),
+    htmlExtract: z.object({
+      enabled: z.boolean().optional().catch(true),
+    }),
+    urlTool: z.object({
+      enabled: z.boolean().optional().catch(true),
+    }),
+    csvPreview: z.object({
+      enabled: z.boolean().optional().catch(true),
+    }),
+  })
+  .catch(DEFAULT_TOOL_SETTINGS)
+
 const MCPTransportConfigSchema = z.discriminatedUnion('type', [
   z.object({
     type: z.literal('stdio'),
@@ -401,6 +445,7 @@ export const SettingsSchema = GlobalSessionSettingsSchema.extend({
   shortcuts: ShortcutSettingSchema,
 
   extension: ExtensionSettingsSchema,
+  tools: ToolSettingsSchema,
   mcp: MCPSettingsSchema,
   skills: SkillSettingsSchema.catch({
     enabledSkillNames: [],
@@ -430,6 +475,7 @@ export type ShortcutToggleWindowValue = z.infer<typeof ShortcutToggleWindowValue
 export type ShortcutName = keyof ShortcutSetting
 export type ShortcutSetting = z.infer<typeof ShortcutSettingSchema>
 export type ExtensionSettings = z.infer<typeof ExtensionSettingsSchema>
+export type ToolSettings = z.infer<typeof ToolSettingsSchema>
 export type MCPTransportConfig = z.infer<typeof MCPTransportConfigSchema>
 export type MCPServerConfig = z.infer<typeof MCPServerConfigSchema>
 export type MCPSettings = z.infer<typeof MCPSettingsSchema>

@@ -71,3 +71,7 @@ export function getAutoGenerateTitle() {
 export function getExtensionSettings() {
   return settingsStore.getState().extension
 }
+
+export function getToolSettings() {
+  return settingsStore.getState().tools
+}
