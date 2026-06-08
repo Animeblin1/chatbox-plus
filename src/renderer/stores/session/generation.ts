@@ -37,6 +37,7 @@ import { settingsStore } from '../settingsStore'
 import { uiStore } from '../uiStore'
 import { createNewFork, findMessageLocation } from './forks'
 import { insertMessageAfter, modifyMessage } from './messages'
+import { orchestrateGeneration } from './orchestration'
 
 /**
  * Get session-level web browsing setting
@@ -116,11 +117,16 @@ export async function generate(
   // Get dependent data
   const session = await chatStore.getSession(sessionId)
   const settings = await chatStore.getSessionSettings(sessionId)
-  const globalSettings = settingsStore.getState().getSettings()
-  const configs = await platform.getConfig()
   if (!session || !settings) {
     return
   }
+
+  if (session.type === 'chat' || session.type === undefined) {
+    return orchestrateGeneration(sessionId, targetMsg, options)
+  }
+
+  const globalSettings = settingsStore.getState().getSettings()
+  const configs = await platform.getConfig()
 
   // Track generation event
   trackGenerateEvent(sessionId, settings, globalSettings, session.type, options)
@@ -174,7 +180,8 @@ export async function generate(
     const sessionKnowledgeBaseMap = uiStore.getState().sessionKnowledgeBaseMap
     const knowledgeBase = sessionKnowledgeBaseMap[sessionId]
     const webBrowsing = getSessionWebBrowsing(sessionId, settings.provider)
-    switch (session.type) {
+    const legacySessionType = session.type as SessionType | undefined
+    switch (legacySessionType) {
       // Chat message generation
       case 'chat':
       case undefined: {
@@ -437,7 +444,10 @@ export async function genMessageContext(
     const keys = Array.from(allStorageKeys)
     const contents = await Promise.all(keys.map((key) => storageGetBlob(key)))
     keys.forEach((key, index) => {
-      blobContents.set(key, contents[index])
+      const content = contents[index]
+      if (content !== null && content !== undefined) {
+        blobContents.set(key, content)
+      }
     })
   }
 

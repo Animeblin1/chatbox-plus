@@ -97,6 +97,33 @@ export async function modifyMessage(
 }
 
 /**
+ * Lightweight UI update while streaming. This updates React Query cache only.
+ */
+export function updateStreamingCache(sessionId: string, message: Message): void {
+  message.timestamp = Date.now()
+  chatStore.updateMessageCache(sessionId, message.id, message).catch((err) => {
+    console.error('Failed to update streaming cache:', err)
+  })
+}
+
+/**
+ * Persistent write for periodic and final streaming updates.
+ */
+export async function persistStreamingMessage(
+  sessionId: string,
+  message: Message,
+  options?: { refreshCounting?: boolean }
+): Promise<void> {
+  if (options?.refreshCounting) {
+    message.wordCount = countMessageWords(message)
+    message.tokenCount = estimateTokensFromMessages([message])
+    message.tokenCountMap = undefined
+  }
+  message.timestamp = Date.now()
+  await chatStore.updateMessage(sessionId, message.id, message)
+}
+
+/**
  * 在会话中删除消息。如果消息存在于历史主题中，也能支持删除
  * @param sessionId
  * @param messageId
@@ -144,7 +171,7 @@ export async function submitNewUserMessage(
 
   const globalSettings = settingsStore.getState().getSettings()
   const isPro = settingActions.isPro()
-  const remoteConfig = settingActions.getRemoteConfig()
+  const remoteConfig = await settingActions.getRemoteConfig()
 
   // 根据需要，插入空白的回复消息
   let newAssistantMsg = createMessage('assistant', '')
